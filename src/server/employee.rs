@@ -1,4 +1,4 @@
-use sea_orm::{ActiveValue, IntoActiveModel, prelude::*};
+use sea_orm::{ActiveValue, IntoActiveModel, QueryTrait, prelude::*};
 use sky_pojo::{
     dto::employee::{EmployeeDto, EmployeeLoginDto, EmployeePageQueryDto},
     entities::employee::{self, Model},
@@ -70,7 +70,11 @@ pub async fn page_query(
         page_size,
     }: EmployeePageQueryDto,
 ) -> ApiResult<Page<Model>> {
-    let paginator = employee::Entity::find().paginate(&db, page_size as u64);
+    let paginator = employee::Entity::find()
+        .apply_if(name, |query, name| {
+            query.filter(employee::Column::Name.contains(name))
+        })
+        .paginate(&db, page_size as u64);
 
     let num_pages = paginator.num_pages().await.unwrap();
     let employees = paginator.fetch_page(page as u64 - 1).await.unwrap();

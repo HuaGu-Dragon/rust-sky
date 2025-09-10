@@ -12,9 +12,6 @@ use crate::server::auth;
 #[derive(Clone)]
 pub struct AuthLayer;
 
-#[derive(Clone)]
-pub struct RawToken(pub String);
-
 impl AsyncAuthorizeRequest<Body> for AuthLayer {
     type RequestBody = Body;
 
@@ -35,13 +32,24 @@ impl AsyncAuthorizeRequest<Body> for AuthLayer {
                 .await;
 
             if let Ok(TypedHeader(Authorization(bearer))) = auth_header {
-                request
-                    .extensions_mut()
-                    .insert(RawToken(bearer.token().to_string()));
+                match auth::jwt_service().decode(bearer.token()) {
+                    Ok(token) => {
+                        request.extensions_mut().insert(token);
+                    }
+                    Err(e) => {
+                        request.extensions_mut().insert(e.to_string());
+                    }
+                }
             } else if let Some(token) = request.headers().get("token") {
                 if let Ok(token_str) = token.to_str() {
-                    let token_str = token_str.to_string();
-                    request.extensions_mut().insert(RawToken(token_str));
+                    match auth::jwt_service().decode(token_str) {
+                        Ok(token) => {
+                            request.extensions_mut().insert(token);
+                        }
+                        Err(e) => {
+                            request.extensions_mut().insert(e.to_string());
+                        }
+                    }
                 }
             }
 

@@ -1,6 +1,6 @@
 use axum::{extract::FromRequestParts, http::request::Parts};
 
-use crate::server::{error::ApiError, middleware::RawToken};
+use crate::server::error::ApiError;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Id(pub i64);
@@ -15,20 +15,12 @@ where
 
     #[doc = " Perform the extraction."]
     async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
-        if let Some(&id) = parts.extensions.get::<i64>() {
-            return Ok(Self(id));
-        }
         //TODO: Handle error properly
-        let token = parts
+        let id = parts
             .extensions
-            .get::<RawToken>()
-            .ok_or(ApiError::Unauthorized)
-            .unwrap();
+            .get::<i64>()
+            .ok_or(ApiError::Unauthorized)?;
 
-        let id = crate::server::auth::jwt_service().decode(&token.0)?;
-
-        parts.extensions.insert(id);
-
-        Ok(Self(id))
+        Ok(Self(*id))
     }
 }

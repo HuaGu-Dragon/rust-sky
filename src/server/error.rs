@@ -12,6 +12,8 @@ pub enum ApiError {
     LoginError,
     #[error("Unauthorized")]
     Unauthorized,
+    #[error("Invalid Token: {0}")]
+    InvalidToken(#[from] jsonwebtoken::errors::Error),
     #[error("Internal Server Error")]
     Internal,
 }
@@ -19,7 +21,9 @@ pub enum ApiError {
 impl ApiError {
     fn status_code(&self) -> axum::http::StatusCode {
         match self {
-            ApiError::LoginError | ApiError::Unauthorized => axum::http::StatusCode::UNAUTHORIZED,
+            ApiError::LoginError | ApiError::InvalidToken(_) | ApiError::Unauthorized => {
+                axum::http::StatusCode::UNAUTHORIZED
+            }
             ApiError::Internal => axum::http::StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::AccountLocked => axum::http::StatusCode::FORBIDDEN,
         }

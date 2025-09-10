@@ -53,9 +53,9 @@ impl JwtService {
     //TODO: Handle errors properly
     //TODO: Return custom error when token is expired or invalid
     pub fn decode(&self, token: &str) -> ApiResult<i64> {
-        let token_data = jsonwebtoken::decode::<Claims>(token, &self.decode_key, &self.validation)
-            .unwrap()
-            .claims;
+        let token_data =
+            jsonwebtoken::decode::<Claims>(token, &self.decode_key, &self.validation)?.claims;
+
         Ok(token_data.sub.parse::<i64>().unwrap())
     }
 }
