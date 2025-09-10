@@ -81,3 +81,19 @@ pub async fn page_query(
 
     Ok(Page::new(num_pages as i64, employees))
 }
+
+// TODO: Error handling
+pub async fn change_status(db: DatabaseConnection, id: i64, status: i32) -> ApiResult<()> {
+    let employee: Model = employee::Entity::find_by_id(id)
+        .one(&db)
+        .await
+        .map_err(|_| ApiError::Internal)?
+        .ok_or(ApiError::NotFound)?;
+
+    let mut employee = employee.into_active_model();
+    employee.status = ActiveValue::Set(status);
+
+    employee.update(&db).await.map_err(|_| ApiError::Internal)?;
+
+    Ok(())
+}

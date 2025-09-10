@@ -1,10 +1,10 @@
 use axum::{
     Json, Router,
-    extract::{Query, State},
+    extract::{Path, Query, State},
     routing::{get, post},
 };
 use sky_pojo::{
-    dto::employee::{EmployeeDto, EmployeeLoginDto, EmployeePageQueryDto},
+    dto::employee::{EmployeeDto, EmployeeLoginDto, EmployeePageQueryDto, StateQuery},
     entities::employee::Model,
     vo::{Page, employee::EmployeeLoginVO},
 };
@@ -21,6 +21,7 @@ pub fn create_router() -> Router<AppState> {
         .route("/login", post(login))
         .route("/logout", post(logout))
         .route("/page", get(page))
+        .route("/status/{status}", post(status))
 }
 
 async fn save(
@@ -65,4 +66,16 @@ async fn page(
     let employees = server::employee::page_query(db, employee).await?;
 
     Ok(ApiResponse::success(employees))
+}
+
+async fn status(
+    Id(_id): Id,
+    State(AppState { db }): State<AppState>,
+    Path(status): Path<i32>,
+    Query(StateQuery { id }): Query<StateQuery>,
+) -> ApiReturn<()> {
+    info!("Change employee {id} status to {status}");
+    server::employee::change_status(db, id, status).await?;
+
+    Ok(ApiResponse::success(()))
 }

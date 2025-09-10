@@ -1,4 +1,4 @@
-@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzU3NTAxNDQ1LCJpYXQiOjE3NTc0OTc4NDV9.70wXt_smiizLH4Z8g_kQRDcr7fS3d83o8r5RZ35D05A
+@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzU3NTE3MDMwLCJpYXQiOjE3NTc1MTM0MzB9.yFypYcLsF1-05PTlnyCx9zzGfDBOyJ6mxNrTWNqmgeQ
 ### Login
 
 POST http://localhost:8080/admin/employee/login
@@ -27,4 +27,9 @@ Authorization: Bearer {{token}}
 ###
 
 GET http://localhost:8080/admin/employee/page?page=1&pageSize=10
+Authorization: Bearer {{token}}
+
+### Change Employee Status (Requires Auth)
+
+POST http://localhost:8080/admin/employee/status/1?id=3
 Authorization: Bearer {{token}}
