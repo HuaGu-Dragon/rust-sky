@@ -14,7 +14,6 @@ const DISABLE: i32 = 0;
 const DEFAULT_PASSWORD: &str = "123456";
 
 pub async fn save(id: i64, db: DatabaseConnection, employee: EmployeeDto) -> ApiResult<()> {
-    info!("Received employee data: {:?}", employee);
     let mut employee = employee.into_active_model();
 
     employee.id = ActiveValue::NotSet;
@@ -32,7 +31,7 @@ pub async fn save(id: i64, db: DatabaseConnection, employee: EmployeeDto) -> Api
     employee.update_user = ActiveValue::Set(Some(id));
 
     //TODO: error handling
-    employee.insert(&db).await.unwrap();
+    employee.insert(&db).await.map_err(|_| ApiError::Internal)?;
     Ok(())
 }
 

@@ -5,9 +5,7 @@ use axum_extra::{
     TypedHeader,
     headers::{Authorization, authorization::Bearer},
 };
-use sea_orm::sea_query::token;
 use tower_http::auth::AsyncAuthorizeRequest;
-use tracing::info;
 
 use crate::server::auth;
 
