@@ -9,8 +9,11 @@ use tower_http::auth::AsyncAuthorizeRequest;
 
 use crate::server::auth;
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct AuthLayer;
+
+#[derive(Clone)]
+pub struct RawToken(pub String);
 
 impl AsyncAuthorizeRequest<Body> for AuthLayer {
     type RequestBody = Body;
@@ -32,14 +35,13 @@ impl AsyncAuthorizeRequest<Body> for AuthLayer {
                 .await;
 
             if let Ok(TypedHeader(Authorization(bearer))) = auth_header {
-                if let Ok(id) = auth::jwt_service().decode(bearer.token()) {
-                    request.extensions_mut().insert(id);
-                }
+                request
+                    .extensions_mut()
+                    .insert(RawToken(bearer.token().to_string()));
             } else if let Some(token) = request.headers().get("token") {
                 if let Ok(token_str) = token.to_str() {
-                    if let Ok(id) = auth::jwt_service().decode(token_str) {
-                        request.extensions_mut().insert(id);
-                    }
+                    let token_str = token_str.to_string();
+                    request.extensions_mut().insert(RawToken(token_str));
                 }
             }
 

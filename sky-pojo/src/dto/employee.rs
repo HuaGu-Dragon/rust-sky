@@ -19,3 +19,11 @@ pub struct EmployeeDto {
     sex: String,
     username: String,
 }
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct EmployeePageQueryDto {
+    pub name: Option<String>,
+    pub page: i32,
+    pub page_size: i32,
+}

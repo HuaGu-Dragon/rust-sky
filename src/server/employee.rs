@@ -1,7 +1,8 @@
 use sea_orm::{ActiveValue, IntoActiveModel, prelude::*};
 use sky_pojo::{
-    dto::employee::{EmployeeDto, EmployeeLoginDto},
+    dto::employee::{EmployeeDto, EmployeeLoginDto, EmployeePageQueryDto},
     entities::employee::{self, Model},
+    vo::Page,
 };
 use sqlx::types::chrono;
 use tracing::info;
@@ -31,6 +32,8 @@ pub async fn save(id: i64, db: DatabaseConnection, employee: EmployeeDto) -> Api
     employee.update_user = ActiveValue::Set(Some(id));
 
     //TODO: error handling
+    //TODO: check for duplicate usernames
+    //TODO: handle the same name situation
     employee.insert(&db).await.map_err(|_| ApiError::Internal)?;
     Ok(())
 }
@@ -56,4 +59,21 @@ pub async fn login(
         info!("Login successful");
         Ok(employee)
     }
+}
+
+//TODO: Error handling
+pub async fn page_query(
+    db: DatabaseConnection,
+    EmployeePageQueryDto {
+        name,
+        page,
+        page_size,
+    }: EmployeePageQueryDto,
+) -> ApiResult<Page<Model>> {
+    let paginator = employee::Entity::find().paginate(&db, page_size as u64);
+
+    let num_pages = paginator.num_pages().await.unwrap();
+    let employees = paginator.fetch_page(page as u64 - 1).await.unwrap();
+
+    Ok(Page::new(num_pages as i64, employees))
 }

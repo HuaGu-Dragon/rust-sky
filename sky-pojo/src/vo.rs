@@ -1,1 +1,15 @@
+use serde::Serialize;
+
 pub mod employee;
+
+#[derive(Debug, Clone, Serialize)]
+pub struct Page<T> {
+    total: i64,
+    records: Vec<T>,
+}
+
+impl<T> Page<T> {
+    pub fn new(total: i64, records: Vec<T>) -> Self {
+        Self { total, records }
+    }
+}
