@@ -4,7 +4,17 @@ use axum::Router;
 use tokio::net::TcpListener;
 use tracing::info;
 
-use crate::{app::AppState, config::server::ServerConfig};
+use crate::{
+    app::AppState,
+    config::server::ServerConfig,
+    server::{error::ApiResult, response::ApiResponse},
+};
+
+pub mod employee;
+pub mod error;
+pub mod response;
+
+pub type ApiReturn<T> = ApiResult<ApiResponse<T>>;
 
 pub struct Server {
     config: &'static ServerConfig,
