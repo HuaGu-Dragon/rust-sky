@@ -2,16 +2,20 @@ use std::net::SocketAddr;
 
 use axum::Router;
 use tokio::net::TcpListener;
+use tower_http::auth::AsyncRequireAuthorizationLayer;
 use tracing::info;
 
 use crate::{
     app::AppState,
     config::server::ServerConfig,
-    server::{error::ApiResult, response::ApiResponse},
+    server::{error::ApiResult, middleware::AuthLayer, response::ApiResponse},
 };
 
+pub mod auth;
 pub mod employee;
 pub mod error;
+pub mod extract;
+pub mod middleware;
 pub mod response;
 
 pub type ApiReturn<T> = ApiResult<ApiResponse<T>>;
@@ -46,6 +50,9 @@ impl Server {
     }
 
     pub fn build_router(&self, router: Router<AppState>, state: AppState) -> Router {
-        Router::new().merge(router).with_state(state)
+        Router::new()
+            .merge(router)
+            .layer(AsyncRequireAuthorizationLayer::new(AuthLayer))
+            .with_state(state)
     }
 }

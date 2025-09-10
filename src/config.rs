@@ -2,8 +2,9 @@ use std::sync::LazyLock;
 
 use serde::Deserialize;
 
-use crate::config::{database::DatabaseConfig, server::ServerConfig};
+use crate::config::{auth::AuthConfig, database::DatabaseConfig, server::ServerConfig};
 
+pub mod auth;
 mod database;
 pub mod server;
 
@@ -12,6 +13,7 @@ static CONFIG: LazyLock<AppConfig> = LazyLock::new(AppConfig::load);
 pub struct AppConfig {
     database: DatabaseConfig,
     server: ServerConfig,
+    auth: AuthConfig,
 }
 
 impl AppConfig {
@@ -35,6 +37,10 @@ impl AppConfig {
 
     pub fn server(&self) -> &server::ServerConfig {
         &self.server
+    }
+
+    pub fn auth(&self) -> &AuthConfig {
+        &self.auth
     }
 }
 

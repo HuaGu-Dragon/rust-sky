@@ -1,0 +1,25 @@
+@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzU3NDk1NDE2LCJpYXQiOjE3NTc0OTE4MTZ9.KMBJAl6iS03s3NmzpZUGOs-yNHjyU06kL5iUBdOcUK0
+### Login
+
+POST http://localhost:8080/admin/employee/login
+Content-Type: application/json
+
+{
+    "username": "admin",
+    "password": "123456"
+}
+
+### Create Employee (Requires Auth)
+
+POST http://localhost:8080/admin/employee
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "id": 0,
+    "idNumber": "111222333444555666",
+    "name": "zhi",
+    "phone": "13812344321",
+    "sex": "1",
+    "username": "小智"
+}

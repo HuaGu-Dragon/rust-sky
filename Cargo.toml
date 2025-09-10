@@ -11,6 +11,9 @@ sky-pojo = { path = "./sky-pojo" }
 
 tokio = { workspace = true }
 axum = { workspace = true }
+axum-extra = { workspace = true }
+axum-valid = { workspace = true }
+tower-http = { workspace = true }
 serde = { workspace = true }
 sqlx = { workspace = true }
 sea-orm = { workspace = true }
@@ -18,12 +21,26 @@ tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 argon2 = { workspace = true }
 jsonwebtoken = { workspace = true }
+thiserror = { workspace = true }
 config = { workspace = true }
 
 [workspace.dependencies]
 tokio = { version = "1.47.0", features = ["full"] }
 
 axum = { version = "0.8.4", features = ["macros"] }
+axum-extra = { version = "0.10.1", features = ["typed-header"] }
+axum-valid = { version = "0.24.0", features = ["full_validator"] }
+
+tower-http = { version = "0.6.6", features = [
+    "cors",
+    "limit",
+    "normalize-path",
+    "timeout",
+    "trace",
+    "auth",
+    "compression-full",
+] }
+
 serde = { version = "1.0.219", features = ["derive"] }
 
 sqlx = { version = "0.8.6", features = ["runtime-tokio-native-tls"] }
@@ -40,5 +57,7 @@ tracing-subscriber = { version = "0.3.20", features = ["env-filter", "chrono"] }
 
 argon2 = "0.5.3"
 jsonwebtoken = "9.3.1"
+
+thiserror = "2.0.16"
 
 config = { version = "0.15.15", features = ["toml"] }
