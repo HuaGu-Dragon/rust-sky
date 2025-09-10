@@ -1,4 +1,4 @@
-@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzU3NTE3MDMwLCJpYXQiOjE3NTc1MTM0MzB9.yFypYcLsF1-05PTlnyCx9zzGfDBOyJ6mxNrTWNqmgeQ
+@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzU3NTE5MDA4LCJpYXQiOjE3NTc1MTU0MDh9.Kjs-i2yDrSC5ITNFK1WplaB8b44RXzT0mUbnlvMP1D8
 ### Login
 
 POST http://localhost:8080/admin/employee/login
@@ -33,3 +33,23 @@ Authorization: Bearer {{token}}
 
 POST http://localhost:8080/admin/employee/status/1?id=3
 Authorization: Bearer {{token}}
+
+### Get Employee by ID (Requires Auth)
+
+GET http://localhost:8080/admin/employee/3
+Authorization: Bearer {{token}}
+
+### Update Employee (Requires Auth)
+
+PUT http://localhost:8080/admin/employee
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "id": 3,
+    "idNumber": "111222333444555666",
+    "name": "小智",
+    "phone": "13812344321",
+    "sex": "1",
+    "username": "zhi-updated"
+}

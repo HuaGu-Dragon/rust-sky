@@ -38,6 +38,42 @@ pub async fn save(id: i64, db: DatabaseConnection, employee: EmployeeDto) -> Api
     Ok(())
 }
 
+macro_rules! update_params {
+    ($active_model:expr, $field:ident, $value:expr) => {
+        $active_model.$field = ActiveValue::Set($value);
+    };
+}
+
+pub async fn update(db: DatabaseConnection, employee_update: EmployeeDto) -> ApiResult<()> {
+    let employee = employee::Entity::find_by_id(employee_update.id)
+        .one(&db)
+        .await
+        .map_err(|_| ApiError::Internal)?
+        .ok_or(ApiError::NotFound)?;
+
+    let mut employee = employee.into_active_model();
+
+    update_params!(employee, id_number, employee_update.id_number);
+    update_params!(employee, name, employee_update.name);
+    update_params!(employee, phone, employee_update.phone);
+    update_params!(employee, sex, employee_update.sex);
+    update_params!(employee, username, employee_update.username);
+
+    employee.update(&db).await.map_err(|_| ApiError::Internal)?;
+    Ok(())
+}
+
+// TODO: Error handling
+pub async fn get_by_id(db: DatabaseConnection, id: i64) -> ApiResult<Model> {
+    let employee: Model = employee::Entity::find_by_id(id)
+        .one(&db)
+        .await
+        .map_err(|_| ApiError::Internal)?
+        .ok_or(ApiError::NotFound)?;
+
+    Ok(employee)
+}
+
 pub async fn login(
     db: DatabaseConnection,
     EmployeeLoginDto { username, password }: EmployeeLoginDto,

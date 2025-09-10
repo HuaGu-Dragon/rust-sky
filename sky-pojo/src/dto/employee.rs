@@ -12,12 +12,12 @@ pub struct EmployeeLoginDto {
 #[serde(rename_all = "camelCase")]
 pub struct EmployeeDto {
     #[serde(default)]
-    id: i64,
-    id_number: String,
-    name: String,
-    phone: String,
-    sex: String,
-    username: String,
+    pub id: i64,
+    pub id_number: String,
+    pub name: String,
+    pub phone: String,
+    pub sex: String,
+    pub username: String,
 }
 
 #[derive(Debug, Clone, Deserialize)]

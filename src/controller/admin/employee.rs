@@ -17,7 +17,8 @@ use crate::{
 
 pub fn create_router() -> Router<AppState> {
     Router::new()
-        .route("/", post(save))
+        .route("/", post(save).put(update))
+        .route("/{id}", get(get_employee))
         .route("/login", post(login))
         .route("/logout", post(logout))
         .route("/page", get(page))
@@ -33,6 +34,26 @@ async fn save(
     server::employee::save(id, db, employee).await?;
 
     Ok(ApiResponse::success(()))
+}
+
+async fn update(
+    Id(_id): Id,
+    State(AppState { db }): State<AppState>,
+    Json(employee): Json<EmployeeDto>,
+) -> ApiReturn<()> {
+    info!("Update employee information");
+    server::employee::update(db, employee).await?;
+
+    Ok(ApiResponse::success(()))
+}
+
+async fn get_employee(
+    Id(_id): Id,
+    State(AppState { db }): State<AppState>,
+    Path(id): Path<i64>,
+) -> ApiReturn<Model> {
+    let employee = server::employee::get_by_id(db, id).await?;
+    Ok(ApiResponse::success(employee))
 }
 
 async fn login(
