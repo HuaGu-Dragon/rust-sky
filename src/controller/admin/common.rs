@@ -1,0 +1,15 @@
+use axum::{Router, extract::Multipart, routing::post};
+
+use crate::{app::AppState, server::ApiReturn};
+
+pub fn create_router() -> Router<AppState> {
+    Router::new().route("/upload", post(upload))
+}
+
+// Upload file
+//TODO: Save file to local or cloud storage and return the file path
+// I don't actually know which way to go, I don't have a oss account, but I can save it to local first
+async fn upload(mut multiple: Multipart) -> ApiReturn<String> {
+    while let Ok(Some(_field)) = multiple.next_field().await {}
+    todo!()
+}
