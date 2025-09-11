@@ -1,4 +1,4 @@
-use sea_orm::{ActiveValue, IntoActiveModel, QueryTrait, prelude::*};
+use sea_orm::{ActiveValue, IntoActiveModel, QueryOrder, QueryTrait, prelude::*};
 use sky_pojo::{
     dto::category::{CategoryDto, CategoryQueryDto, CategoryUpdateDto},
     entities::category::{self, Model},
@@ -106,6 +106,7 @@ pub async fn page(
         .apply_if(r#type, |query, t| {
             query.filter(category::Column::Type.eq(t))
         })
+        .order_by_asc(category::Column::Sort)
         .paginate(&db, page_size as u64);
 
     let num_pages = paginator
