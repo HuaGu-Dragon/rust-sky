@@ -7,10 +7,13 @@ use sky_pojo::{
 use sqlx::types::chrono;
 use tracing::info;
 
-use crate::server::error::{ApiError, ApiResult};
-
-const ENABLE: i32 = 1;
-const DISABLE: i32 = 0;
+use crate::{
+    server::{
+        DISABLE, ENABLE,
+        error::{ApiError, ApiResult},
+    },
+    update_params,
+};
 
 const DEFAULT_PASSWORD: &str = "123456";
 
@@ -36,12 +39,6 @@ pub async fn save(id: i64, db: DatabaseConnection, employee: EmployeeDto) -> Api
     //TODO: handle the same name situation
     employee.insert(&db).await.map_err(|_| ApiError::Internal)?;
     Ok(())
-}
-
-macro_rules! update_params {
-    ($active_model:expr, $field:ident, $value:expr) => {
-        $active_model.$field = ActiveValue::Set($value);
-    };
 }
 
 pub async fn update(db: DatabaseConnection, employee_update: EmployeeDto) -> ApiResult<()> {
@@ -127,7 +124,7 @@ pub async fn change_status(db: DatabaseConnection, id: i64, status: i32) -> ApiR
         .ok_or(ApiError::NotFound)?;
 
     let mut employee = employee.into_active_model();
-    employee.status = ActiveValue::Set(status);
+    update_params!(employee, status, status);
 
     employee.update(&db).await.map_err(|_| ApiError::Internal)?;
 

@@ -21,6 +21,7 @@ use crate::{
 };
 
 pub mod auth;
+pub mod category;
 pub mod employee;
 pub mod error;
 pub mod extract;
@@ -29,6 +30,9 @@ pub mod middleware;
 pub mod response;
 
 pub type ApiReturn<T> = ApiResult<ApiResponse<T>>;
+
+const ENABLE: i32 = 1;
+const DISABLE: i32 = 0;
 
 pub struct Server {
     config: &'static ServerConfig,
@@ -103,4 +107,11 @@ impl Server {
             .layer(TimeoutLayer::new(Duration::from_secs(30))) // TODO: make configurable
             .with_state(state)
     }
+}
+
+#[macro_export]
+macro_rules! update_params {
+    ($active_model:expr, $field:ident, $value:expr) => {
+        $active_model.$field = ActiveValue::Set($value);
+    };
 }

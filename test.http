@@ -1,4 +1,4 @@
-@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzU3NTE5MDA4LCJpYXQiOjE3NTc1MTU0MDh9.Kjs-i2yDrSC5ITNFK1WplaB8b44RXzT0mUbnlvMP1D8
+@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzU3NTc3MTAxLCJpYXQiOjE3NTc1NzM1MDF9.7_WkEDzpZmTFKzdNt6bFkHMhhAMoQN5c7_Z3wo3oGLs
 ### Login
 
 POST http://localhost:8080/admin/employee/login
@@ -53,3 +53,41 @@ Authorization: Bearer {{token}}
     "sex": "1",
     "username": "zhi-updated"
 }
+
+### Add Category (Requires Auth)
+### the interface is not working properly because of the type issue
+### fixed by changing type from String to i32 in CategoryDto and using deserialize_with in Category entity
+### so the string input can be deserialized to i32. fuck
+POST http://localhost:8080/admin/category
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "name": "bun",
+    "type": 1,
+    "sort": "10"
+}
+
+### Get Category Page (Requires Auth)
+GET http://localhost:8080/admin/category/page?page=1&pageSize=10
+Authorization: Bearer {{token}}
+
+### Update Category (Requires Auth)
+PUT http://localhost:8080/admin/category
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "id": 1,
+    "name": "bun-updated",
+    "sort": "10"
+}
+
+### Get Category by ID (Requires Auth)
+GET http://localhost:8080/admin/category
+
+Authorization: Bearer {{token}}/1
+
+### Delete Category by ID (Requires Auth)
+DELETE http://localhost:8080/admin/category/1
+Authorization: Bearer {{token}}
