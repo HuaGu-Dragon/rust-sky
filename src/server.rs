@@ -1,20 +1,30 @@
-use std::net::SocketAddr;
+use std::{net::SocketAddr, time::Duration};
 
-use axum::Router;
+use axum::{
+    Router,
+    extract::{ConnectInfo, Request},
+};
 use tokio::net::TcpListener;
-use tower_http::auth::AsyncRequireAuthorizationLayer;
+use tower_http::{
+    auth::AsyncRequireAuthorizationLayer, cors::CorsLayer, limit::RequestBodyLimitLayer,
+    normalize_path::NormalizePathLayer, timeout::TimeoutLayer, trace::TraceLayer,
+};
 use tracing::info;
+use uuid::Uuid;
 
 use crate::{
     app::AppState,
     config::server::ServerConfig,
-    server::{error::ApiResult, middleware::AuthLayer, response::ApiResponse},
+    server::{
+        error::ApiResult, latency::LatencyLayer, middleware::AuthLayer, response::ApiResponse,
+    },
 };
 
 pub mod auth;
 pub mod employee;
 pub mod error;
 pub mod extract;
+mod latency;
 pub mod middleware;
 pub mod response;
 
@@ -52,7 +62,45 @@ impl Server {
     pub fn build_router(&self, router: Router<AppState>, state: AppState) -> Router {
         Router::new()
             .merge(router)
+            .layer(NormalizePathLayer::trim_trailing_slash())
+            .layer(RequestBodyLimitLayer::new(1024 * 1024 * 10))
+            .layer(
+                TraceLayer::new_for_http()
+                    .make_span_with(|request: &Request| {
+                        let id = Uuid::new_v4();
+                        let span = tracing::info_span!(
+                            "http_request",
+                            id = %id,
+                            user_id = tracing::field::Empty,
+                            error = tracing::field::Empty,
+                            method = %request.method(),
+                            uri = %request.uri(),
+                            version = ?request.version(),
+                            addr = tracing::field::Empty
+                        );
+
+                        if let Some(user_id) = request.extensions().get::<i64>() {
+                            span.record("user_id", user_id);
+                        }
+                        if let Some(error) = request.extensions().get::<String>() {
+                            span.record("error", error);
+                        }
+
+                        span
+                    })
+                    .on_request(|request: &Request, span: &tracing::Span| {
+                        if let Some(ConnectInfo(addr)) =
+                            request.extensions().get::<ConnectInfo<SocketAddr>>()
+                        {
+                            span.record("addr", addr.to_string());
+                        }
+                    })
+                    .on_failure(())
+                    .on_response(LatencyLayer),
+            )
             .layer(AsyncRequireAuthorizationLayer::new(AuthLayer))
+            .layer(CorsLayer::permissive())
+            .layer(TimeoutLayer::new(Duration::from_secs(30))) // TODO: make configurable
             .with_state(state)
     }
 }

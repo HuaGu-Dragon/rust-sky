@@ -48,7 +48,7 @@ Authorization: Bearer {{token}}
 {
     "id": 3,
     "idNumber": "111222333444555666",
-    "name": "小智",
+    "name": "小智1",
     "phone": "13812344321",
     "sex": "1",
     "username": "zhi-updated"
