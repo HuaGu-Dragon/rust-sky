@@ -4,7 +4,6 @@ use sky_pojo::{
     entities::employee::{self, Model},
     vo::Page,
 };
-use sqlx::types::chrono;
 use tracing::info;
 
 use crate::{
@@ -26,10 +25,6 @@ pub async fn save(id: i64, db: DatabaseConnection, employee: EmployeeDto) -> Api
 
     //TODO: argon2
     employee.password = ActiveValue::Set(DEFAULT_PASSWORD.to_string());
-
-    //TODO: change to the model_injection method
-    employee.create_time = ActiveValue::Set(Some(chrono::Utc::now().naive_utc()));
-    employee.update_time = ActiveValue::Set(Some(chrono::Utc::now().naive_utc()));
 
     employee.create_user = ActiveValue::Set(Some(id));
     employee.update_user = ActiveValue::Set(Some(id));

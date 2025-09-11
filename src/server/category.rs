@@ -4,7 +4,6 @@ use sky_pojo::{
     entities::category::{self, Model},
     vo::Page,
 };
-use sqlx::types::chrono;
 
 use crate::{
     server::{
@@ -20,10 +19,6 @@ pub async fn save(id: i64, db: DatabaseConnection, category: CategoryDto) -> Api
     category.id = ActiveValue::NotSet;
 
     category.status = ActiveValue::Set(Some(ENABLE));
-
-    //TODO: change to the model_injection method
-    category.create_time = ActiveValue::Set(Some(chrono::Utc::now().naive_local()));
-    category.update_time = ActiveValue::Set(Some(chrono::Utc::now().naive_local()));
 
     category.create_user = ActiveValue::Set(Some(id));
     category.update_user = ActiveValue::Set(Some(id));
