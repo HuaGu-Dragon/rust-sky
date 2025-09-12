@@ -72,6 +72,12 @@ pub struct DishQueryDto {
     pub status: Option<i32>,
 }
 
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DishQueryDelete {
+    pub ids: String,
+}
+
 // uri=/admin/dish/page?page=1&pageSize=10&status=
 // what is that fucking request uri???
 fn empty_string_as_none<'de, D>(deserializer: D) -> Result<Option<i32>, D::Error>

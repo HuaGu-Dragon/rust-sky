@@ -1,10 +1,10 @@
 use axum::{
     Json, Router,
     extract::{Path, Query, State},
-    routing::{delete, get},
+    routing::{get, put},
 };
 use sky_pojo::{
-    dto::dish::{DishDto, DishQueryDto},
+    dto::dish::{DishDto, DishQueryDelete, DishQueryDto},
     vo::{
         Page,
         dish::{DishDetailVO, DishVO},
@@ -18,7 +18,7 @@ use crate::{
 
 pub fn create_router() -> Router<AppState> {
     Router::new()
-        .route("/", delete(delete_dish).post(save))
+        .route("/", put(update).delete(delete_dish).post(save))
         .route("/{id}", get(get_dish))
         .route("/page", get(page))
 }
@@ -32,6 +32,15 @@ async fn save(
     Ok(ApiResponse::success(()))
 }
 
+async fn update(
+    Id(id): Id,
+    State(AppState { db }): State<AppState>,
+    Json(category): Json<DishDto>,
+) -> ApiReturn<()> {
+    server::dish::update(id, db, category).await?;
+    Ok(ApiResponse::success(()))
+}
+
 async fn get_dish(
     Id(_id): Id,
     State(AppState { db }): State<AppState>,
@@ -41,7 +50,17 @@ async fn get_dish(
     Ok(ApiResponse::success(dish))
 }
 
-async fn delete_dish() -> ApiReturn<()> {
+async fn delete_dish(
+    Id(_id): Id,
+    State(AppState { db }): State<AppState>,
+    Query(query): Query<DishQueryDelete>,
+) -> ApiReturn<()> {
+    let ids = query
+        .ids
+        .split(',')
+        .filter_map(|s| s.trim().parse().ok())
+        .collect();
+    server::dish::delete(db, ids).await?;
     Ok(ApiResponse::success(()))
 }
 

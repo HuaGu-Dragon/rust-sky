@@ -8,6 +8,8 @@ pub type ApiResult<T> = Result<T, ApiError>;
 pub enum ApiError {
     #[error("Not Found")]
     NotFound,
+    #[error("Bad Request: {0}")]
+    BadRequest(String),
     #[error("Account is Locked")]
     AccountLocked,
     #[error("Account or Password is incorrect")]
@@ -29,6 +31,7 @@ impl ApiError {
             ApiError::Internal => axum::http::StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::AccountLocked => axum::http::StatusCode::FORBIDDEN,
             ApiError::NotFound => axum::http::StatusCode::NOT_FOUND,
+            ApiError::BadRequest(_) => axum::http::StatusCode::BAD_REQUEST,
         }
     }
 }
