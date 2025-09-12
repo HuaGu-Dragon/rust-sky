@@ -31,11 +31,23 @@ pub enum Relation {
         to = "super::category::Column::Id"
     )]
     Category,
+    #[sea_orm(
+        has_many = "super::dish_flavor::Entity",
+        from = "Column::Id",
+        to = "super::dish_flavor::Column::DishId"
+    )]
+    Flavors,
 }
 
 impl Related<super::category::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Category.def()
+    }
+}
+
+impl Related<super::dish_flavor::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Flavors.def()
     }
 }
 

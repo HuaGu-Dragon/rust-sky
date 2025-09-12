@@ -26,7 +26,6 @@ pub mod dish;
 pub mod employee;
 pub mod error;
 pub mod extract;
-pub mod flavor;
 mod latency;
 pub mod middleware;
 pub mod response;

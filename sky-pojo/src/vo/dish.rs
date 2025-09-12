@@ -3,7 +3,7 @@ use sea_orm::prelude::DateTime;
 use serde::Serialize;
 
 use crate::{
-    entities::{category, dish},
+    entities::{category, dish, dish_flavor},
     vo::flavor::DishFlavorVO,
 };
 
@@ -30,6 +30,7 @@ pub struct DishDetailVO {
     pub flavors: Vec<DishFlavorVO>,
 }
 
+//TODO: remove unwrap_or_default, handle Option properly
 impl From<(dish::Model, Option<category::Model>)> for DishVO {
     fn from((dish, category): (dish::Model, Option<category::Model>)) -> Self {
         Self {
@@ -42,6 +43,15 @@ impl From<(dish::Model, Option<category::Model>)> for DishVO {
             status: dish.status.unwrap_or_default(),
             update_time: dish.update_time,
             category_name: category.map(|c| c.name).unwrap_or_default(),
+        }
+    }
+}
+
+impl From<(DishVO, Vec<dish_flavor::Model>)> for DishDetailVO {
+    fn from(value: (DishVO, Vec<dish_flavor::Model>)) -> Self {
+        Self {
+            dish: value.0,
+            flavors: value.1.into_iter().map(DishFlavorVO::from).collect(),
         }
     }
 }
