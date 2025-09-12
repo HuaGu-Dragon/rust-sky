@@ -63,3 +63,4 @@ thiserror = "2.0.16"
 
 uuid = { version = "1.18.1", features = ["v4"] }
 config = { version = "0.15.15", features = ["toml"] }
+rust_decimal = { version = "1.37.2", features = ["serde-with-float"] }

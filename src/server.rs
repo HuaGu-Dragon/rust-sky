@@ -22,6 +22,7 @@ use crate::{
 
 pub mod auth;
 pub mod category;
+pub mod dish;
 pub mod employee;
 pub mod error;
 pub mod extract;

@@ -1,4 +1,4 @@
-@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzU3NTc3MTAxLCJpYXQiOjE3NTc1NzM1MDF9.7_WkEDzpZmTFKzdNt6bFkHMhhAMoQN5c7_Z3wo3oGLs
+@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzU3NjQ4ODI2LCJpYXQiOjE3NTc2NDUyMjZ9.CokVqyoneTQg7Tr2c2ZcvFGtRWGQG8jgkZVGR--w9wQ
 ### Login
 
 POST http://localhost:8080/admin/employee/login
@@ -87,4 +87,8 @@ Authorization: Bearer {{token}}
 
 ### Delete Category by ID (Requires Auth)
 DELETE http://localhost:8080/admin/category?id=13
+Authorization: Bearer {{token}}
+
+### Query Dish Page (Requires Auth)
+GET http://localhost:8080/admin/dish/page?page=1&pageSize=10&status=1
 Authorization: Bearer {{token}}

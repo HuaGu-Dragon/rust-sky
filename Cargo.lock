@@ -2920,6 +2920,7 @@ dependencies = [
 name = "sky-pojo"
 version = "0.1.0"
 dependencies = [
+ "rust_decimal",
  "sea-orm",
  "serde",
 ]

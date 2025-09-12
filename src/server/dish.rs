@@ -1,0 +1,43 @@
+use sea_orm::{ActiveValue, IntoActiveModel, QueryTrait, prelude::*};
+use sky_pojo::{
+    dto::dish::{DishDto, DishQueryDto},
+    entities::dish::{self},
+    vo::{Page, dish::DishVO},
+};
+
+use crate::server::error::{ApiError, ApiResult};
+
+pub async fn save(id: i64, _db: DatabaseConnection, dish: DishDto) -> ApiResult<()> {
+    let mut active_model = dish.into_active_model();
+
+    active_model.create_user = ActiveValue::Set(Some(id));
+    active_model.update_user = ActiveValue::Set(Some(id));
+    Ok(())
+}
+
+pub async fn page(db: DatabaseConnection, query: DishQueryDto) -> ApiResult<Page<DishVO>> {
+    let paginator = dish::Entity::find()
+        .apply_if(query.category_id, |query, id| {
+            query.filter(dish::Column::CategoryId.eq(id))
+        })
+        .apply_if(query.name, |query, name| {
+            query.filter(dish::Column::Name.contains(&name))
+        })
+        .apply_if(query.status, |query, status| {
+            query.filter(dish::Column::Status.eq(status))
+        })
+        .paginate(&db, query.page_size as u64);
+
+    let num_pages = paginator
+        .num_pages()
+        .await
+        .map_err(|_| ApiError::Internal)?;
+    let items = paginator
+        .fetch_page((query.page - 1) as u64)
+        .await
+        .map_err(|_| ApiError::Internal)?;
+
+    let items = items.into_iter().map(DishVO::from).collect();
+
+    Ok(Page::new(num_pages as i64, items))
+}

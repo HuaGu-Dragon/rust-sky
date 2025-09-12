@@ -1,5 +1,6 @@
 use serde::Serialize;
 
+pub mod dish;
 pub mod employee;
 
 #[derive(Debug, Clone, Serialize)]
