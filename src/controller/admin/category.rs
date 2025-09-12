@@ -63,7 +63,7 @@ async fn list(
     Id(_id): Id,
     State(AppState { db }): State<AppState>,
     Query(category): Query<TypeQuery>,
-) -> ApiReturn<Page<Model>> {
+) -> ApiReturn<Vec<Model>> {
     let categories = server::category::list(db, category.r#type).await?;
     Ok(ApiResponse::success(categories))
 }

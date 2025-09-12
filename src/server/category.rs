@@ -75,14 +75,14 @@ pub async fn status(db: DatabaseConnection, id: i64, status: i32) -> ApiResult<(
     Ok(())
 }
 
-pub async fn list(db: DatabaseConnection, r#type: i32) -> ApiResult<Page<Model>> {
+pub async fn list(db: DatabaseConnection, r#type: i32) -> ApiResult<Vec<Model>> {
     let categories = category::Entity::find()
         .filter(category::Column::Type.eq(r#type))
         .all(&db)
         .await
         .map_err(|_| ApiError::Internal)?;
 
-    Ok(Page::new(1, categories))
+    Ok(categories)
 }
 
 pub async fn page(

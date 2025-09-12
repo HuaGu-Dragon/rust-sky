@@ -1,14 +1,18 @@
-use crate::entities::dish::ActiveModel;
+#![allow(clippy::needless_update)]
+
 use sea_orm::{ActiveValue, IntoActiveModel, prelude::*};
 use serde::{
     Deserialize, Deserializer,
     de::{self, Unexpected},
 };
 
+use crate::entities::dish_flavor::ActiveModel;
+use crate::entities::{dish, dish_flavor};
+
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DishDto {
-    pub id: Option<i64>,
+    pub id: i64,
     pub name: String,
     pub category_id: i64,
     pub price: Decimal,
@@ -18,22 +22,41 @@ pub struct DishDto {
     pub flavors: Option<Vec<DishFlavorDto>>,
 }
 
-impl IntoActiveModel<ActiveModel> for DishDto {
-    fn into_active_model(self) -> ActiveModel {
-        ActiveModel {
-            id: if let Some(id) = self.id {
-                ActiveValue::Set(id)
-            } else {
-                ActiveValue::NotSet
-            },
-            name: ActiveValue::Set(self.name),
-            category_id: ActiveValue::Set(self.category_id),
-            price: ActiveValue::Set(Some(self.price)),
-            image: ActiveValue::Set(Some(self.image)),
-            description: ActiveValue::Set(self.description),
-            status: ActiveValue::Set(self.status),
+impl DishDto {
+    pub fn into_active_model(self) -> (dish::ActiveModel, Vec<dish_flavor::ActiveModel>) {
+        let flavor_dto = self.flavors.unwrap_or_default();
+
+        let DishDto {
+            name,
+            category_id,
+            price,
+            image,
+            description,
+            status,
+            ..
+        } = self;
+
+        let dish_am = dish::ActiveModel {
+            id: ActiveValue::NotSet,
+            name: ActiveValue::Set(name),
+            category_id: ActiveValue::Set(category_id),
+            price: ActiveValue::Set(Some(price)),
+            image: ActiveValue::Set(Some(image)),
+            description: ActiveValue::Set(description),
+            status: ActiveValue::Set(status),
             ..Default::default()
-        }
+        };
+
+        let flavor_am = flavor_dto
+            .into_iter()
+            .map(|f| {
+                let mut model = f.into_active_model();
+                model.id = ActiveValue::NotSet;
+                model
+            })
+            .collect();
+
+        (dish_am, flavor_am)
     }
 }
 
@@ -73,11 +96,13 @@ where
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, DeriveIntoActiveModel)]
 #[serde(rename_all = "camelCase")]
 pub struct DishFlavorDto {
-    pub id: Option<i64>,
-    pub dish_id: Option<i64>,
+    #[serde(default)]
+    pub id: i64,
+    #[serde(default)]
+    pub dish_id: i64,
     pub name: String,
     pub value: String,
 }

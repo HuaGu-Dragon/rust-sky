@@ -1,4 +1,5 @@
-use sea_orm::{ActiveValue, IntoActiveModel, QueryTrait, prelude::*};
+use futures_util::future::try_join_all;
+use sea_orm::{ActiveValue, QueryTrait, prelude::*};
 use sky_pojo::{
     dto::dish::{DishDto, DishQueryDto},
     entities::{
@@ -14,11 +15,20 @@ use sky_pojo::{
 
 use crate::server::error::{ApiError, ApiResult};
 
-pub async fn save(id: i64, _db: DatabaseConnection, dish: DishDto) -> ApiResult<()> {
-    let mut active_model = dish.into_active_model();
+pub async fn save(id: i64, db: DatabaseConnection, dish: DishDto) -> ApiResult<()> {
+    let (mut dish, flavors) = dish.into_active_model();
 
-    active_model.create_user = ActiveValue::Set(Some(id));
-    active_model.update_user = ActiveValue::Set(Some(id));
+    dish.create_user = ActiveValue::Set(Some(id));
+    dish.update_user = ActiveValue::Set(Some(id));
+
+    let saved = dish.insert(&db).await.map_err(|_| ApiError::Internal)?;
+
+    let tasks = flavors.into_iter().map(|mut flavor| {
+        flavor.dish_id = ActiveValue::Set(saved.id);
+        flavor.insert(&db)
+    });
+    try_join_all(tasks).await.map_err(|_| ApiError::Internal)?;
+
     Ok(())
 }
 

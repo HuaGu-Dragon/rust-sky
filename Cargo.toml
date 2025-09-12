@@ -10,6 +10,7 @@ edition = "2024"
 sky-pojo = { path = "./sky-pojo" }
 
 tokio = { workspace = true }
+futures-util = { workspace = true }
 axum = { workspace = true }
 axum-extra = { workspace = true }
 axum-valid = { workspace = true }
@@ -27,6 +28,7 @@ config = { workspace = true }
 
 [workspace.dependencies]
 tokio = { version = "1.47.0", features = ["full"] }
+futures-util = "0.3.31"
 
 axum = { version = "0.8.4", features = ["macros"] }
 axum-extra = { version = "0.10.1", features = ["typed-header"] }

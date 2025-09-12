@@ -89,6 +89,11 @@ Authorization: Bearer {{token}}
 DELETE http://localhost:8080/admin/category?id=13
 Authorization: Bearer {{token}}
 
+### Dish List
+
+GET http://localhost:8080/admin/category/list?type=1
+Authorization: Bearer {{token}}
+
 ### Query Dish Page (Requires Auth)
 GET http://localhost:8080/admin/dish/page?page=1&pageSize=10&status=1
 Authorization: Bearer {{token}}
