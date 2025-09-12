@@ -1,7 +1,10 @@
 use sea_orm::{ActiveValue, IntoActiveModel, QueryTrait, prelude::*};
 use sky_pojo::{
     dto::dish::{DishDto, DishQueryDto},
-    entities::dish::{self},
+    entities::{
+        category,
+        dish::{self},
+    },
     vo::{Page, dish::DishVO},
 };
 
@@ -26,6 +29,7 @@ pub async fn page(db: DatabaseConnection, query: DishQueryDto) -> ApiResult<Page
         .apply_if(query.status, |query, status| {
             query.filter(dish::Column::Status.eq(status))
         })
+        .find_also_related(category::Entity)
         .paginate(&db, query.page_size as u64);
 
     let num_pages = paginator

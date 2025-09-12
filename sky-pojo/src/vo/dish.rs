@@ -2,7 +2,7 @@ use rust_decimal::Decimal;
 use sea_orm::prelude::DateTime;
 use serde::Serialize;
 
-use crate::entities::dish;
+use crate::entities::{category, dish};
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -19,18 +19,18 @@ pub struct DishVO {
     pub category_name: String,
 }
 
-impl From<dish::Model> for DishVO {
-    fn from(value: dish::Model) -> Self {
+impl From<(dish::Model, Option<category::Model>)> for DishVO {
+    fn from((dish, category): (dish::Model, Option<category::Model>)) -> Self {
         Self {
-            id: value.id,
-            name: value.name,
-            category_id: value.category_id,
-            price: value.price.unwrap_or_default(),
-            image: value.image.unwrap_or_default(),
-            description: value.description.unwrap_or_default(),
-            status: value.status.unwrap_or_default(),
-            update_time: value.update_time,
-            category_name: "".to_string(), // Placeholder, should be set appropriately
+            id: dish.id,
+            name: dish.name,
+            category_id: dish.category_id,
+            price: dish.price.unwrap_or_default(),
+            image: dish.image.unwrap_or_default(),
+            description: dish.description.unwrap_or_default(),
+            status: dish.status.unwrap_or_default(),
+            update_time: dish.update_time,
+            category_name: category.map(|c| c.name).unwrap_or_default(),
         }
     }
 }
