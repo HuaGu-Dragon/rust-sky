@@ -2,7 +2,10 @@ use rust_decimal::Decimal;
 use sea_orm::prelude::DateTime;
 use serde::Serialize;
 
-use crate::entities::{category, dish};
+use crate::{
+    entities::{category, dish},
+    vo::flavor::DishFlavorVO,
+};
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -17,6 +20,14 @@ pub struct DishVO {
     pub status: i32,
     pub update_time: Option<DateTime>,
     pub category_name: String,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DishDetailVO {
+    #[serde(flatten)]
+    pub dish: DishVO,
+    pub flavors: Vec<DishFlavorVO>,
 }
 
 impl From<(dish::Model, Option<category::Model>)> for DishVO {

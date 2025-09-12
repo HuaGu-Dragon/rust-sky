@@ -2,6 +2,7 @@ use serde::Serialize;
 
 pub mod dish;
 pub mod employee;
+pub mod flavor;
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Page<T> {

@@ -5,10 +5,16 @@ use sky_pojo::{
         category,
         dish::{self},
     },
-    vo::{Page, dish::DishVO},
+    vo::{
+        Page,
+        dish::{DishDetailVO, DishVO},
+    },
 };
 
-use crate::server::error::{ApiError, ApiResult};
+use crate::server::{
+    error::{ApiError, ApiResult},
+    flavor,
+};
 
 pub async fn save(id: i64, _db: DatabaseConnection, dish: DishDto) -> ApiResult<()> {
     let mut active_model = dish.into_active_model();
@@ -16,6 +22,22 @@ pub async fn save(id: i64, _db: DatabaseConnection, dish: DishDto) -> ApiResult<
     active_model.create_user = ActiveValue::Set(Some(id));
     active_model.update_user = ActiveValue::Set(Some(id));
     Ok(())
+}
+
+pub async fn get(db: DatabaseConnection, id: i64) -> ApiResult<DishDetailVO> {
+    let dish = dish::Entity::find_by_id(id)
+        .find_also_related(category::Entity)
+        .one(&db)
+        .await
+        .map_err(|_| ApiError::Internal)?
+        .ok_or(ApiError::NotFound)?;
+
+    let dish = dish.into();
+    let flavors = flavor::get(db, id).await?;
+
+    let dish = DishDetailVO { dish, flavors };
+
+    Ok(dish)
 }
 
 pub async fn page(db: DatabaseConnection, query: DishQueryDto) -> ApiResult<Page<DishVO>> {
