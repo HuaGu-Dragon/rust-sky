@@ -15,5 +15,7 @@ pub fn create_router() -> Router<AppState> {
 async fn upload(mut multiple: Multipart) -> ApiReturn<String> {
     // while let Ok(Some(_field)) = multiple.next_field().await {}
     // todo!()
-    Ok(ApiResponse::success("".to_string()))
+    Ok(ApiResponse::success(
+        "https://avatars.githubusercontent.com/u/178029962?v=4".to_string(),
+    ))
 }

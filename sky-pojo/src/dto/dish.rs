@@ -12,6 +12,7 @@ use crate::entities::{dish, dish_flavor};
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DishDto {
+    #[serde(default)]
     pub id: i64,
     pub name: String,
     pub category_id: i64,
