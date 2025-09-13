@@ -74,6 +74,12 @@ pub struct DishQueryDto {
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct DishQueryId {
+    pub category_id: i64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct DishQueryDelete {
     pub ids: String,
 }

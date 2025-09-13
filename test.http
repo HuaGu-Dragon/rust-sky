@@ -1,4 +1,4 @@
-@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzU3Njc5NDU2LCJpYXQiOjE3NTc2NzU4NTZ9.XpzOK7EqrOpv21oLHFakoKSfMUqbL1nFmvcR4la_Tis
+@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzU3NzU1NzA5LCJpYXQiOjE3NTc3NTIxMDl9.LbvUc_3F07KWAHvQHnzdar2w4PdNWCIkYlRysU3zLvU
 ### Login
 
 POST http://localhost:8080/admin/employee/login
@@ -96,6 +96,10 @@ Authorization: Bearer {{token}}
 
 ### Query Dish Page (Requires Auth)
 GET http://localhost:8080/admin/dish/page?page=1&pageSize=10&status=1
+Authorization: Bearer {{token}}
+
+### Delete Dish by ID (Requires Auth)
+DELETE http://localhost:8080/admin/dish?ids=46
 Authorization: Bearer {{token}}
 
 ### Query Dish by ID (Requires Auth)

@@ -4,7 +4,8 @@ use axum::{
     routing::{get, put},
 };
 use sky_pojo::{
-    dto::dish::{DishDto, DishQueryDelete, DishQueryDto},
+    dto::dish::{DishDto, DishQueryDelete, DishQueryDto, DishQueryId},
+    entities::dish::Model,
     vo::{
         Page,
         dish::{DishDetailVO, DishVO},
@@ -21,6 +22,7 @@ pub fn create_router() -> Router<AppState> {
         .route("/", put(update).delete(delete_dish).post(save))
         .route("/{id}", get(get_dish))
         .route("/page", get(page))
+        .route("/list", get(list))
 }
 
 async fn save(
@@ -70,5 +72,14 @@ async fn page(
     Query(query): Query<DishQueryDto>,
 ) -> ApiReturn<Page<DishVO>> {
     let dishes = server::dish::page(db, query).await?;
+    Ok(ApiResponse::success(dishes))
+}
+
+async fn list(
+    Id(_id): Id,
+    State(AppState { db }): State<AppState>,
+    Query(query): Query<DishQueryId>,
+) -> ApiReturn<Vec<Model>> {
+    let dishes = server::dish::list(db, query.category_id).await?;
     Ok(ApiResponse::success(dishes))
 }

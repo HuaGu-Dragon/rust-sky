@@ -6,6 +6,7 @@ mod category;
 mod common;
 mod dish;
 mod employee;
+mod setmeal;
 
 pub fn create_router() -> Router<AppState> {
     Router::new()
@@ -13,4 +14,5 @@ pub fn create_router() -> Router<AppState> {
         .nest("/category", category::create_router())
         .nest("/common", common::create_router())
         .nest("/dish", dish::create_router())
+        .nest("/setmeal", setmeal::create_router())
 }

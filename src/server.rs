@@ -29,6 +29,7 @@ pub mod extract;
 mod latency;
 pub mod middleware;
 pub mod response;
+pub mod setmeal;
 
 pub type ApiReturn<T> = ApiResult<ApiResponse<T>>;
 
