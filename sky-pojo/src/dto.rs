@@ -9,6 +9,11 @@ pub mod employee;
 pub mod setmeal;
 
 #[derive(Debug, Deserialize)]
+pub struct StateQuery {
+    pub id: i64,
+}
+
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct QueryDelete {
     pub ids: String,

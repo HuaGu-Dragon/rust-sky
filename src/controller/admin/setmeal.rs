@@ -5,7 +5,7 @@ use axum::{
 };
 use sky_pojo::{
     dto::{
-        QueryDelete,
+        QueryDelete, StateQuery,
         setmeal::{SetmealDto, SetmealPageQuery},
     },
     vo::{
@@ -23,6 +23,7 @@ pub fn create_router() -> Router<AppState> {
     Router::new()
         .route("/", post(save).delete(delete_meal))
         .route("/{id}", get(get_meal))
+        .route("/status/{status}", post(status))
         .route("/page", get(page))
 }
 
@@ -65,4 +66,14 @@ async fn get_meal(
 ) -> ApiReturn<SetmealDetailVo> {
     let meal = server::setmeal::get(db, id).await?;
     Ok(ApiResponse::success(meal))
+}
+
+async fn status(
+    Id(_id): Id,
+    State(AppState { db }): State<AppState>,
+    Path(status): Path<i32>,
+    Query(StateQuery { id }): Query<StateQuery>,
+) -> ApiReturn<()> {
+    server::setmeal::status(db, id, status).await?;
+    Ok(ApiResponse::success(()))
 }

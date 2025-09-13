@@ -1,5 +1,5 @@
 use futures_util::{future::try_join_all, try_join};
-use sea_orm::{Condition, QueryTrait, TransactionTrait, prelude::*};
+use sea_orm::{ActiveValue, Condition, IntoActiveModel, QueryTrait, TransactionTrait, prelude::*};
 use sky_pojo::{
     dto::setmeal::{SetmealDto, SetmealPageQuery},
     entities::{category, setmeal, setmeal_dish},
@@ -111,4 +111,19 @@ pub async fn get(db: DatabaseConnection, id: i64) -> ApiResult<SetmealDetailVo> 
     let meal = (meal, dishes).into();
 
     Ok(meal)
+}
+
+pub async fn status(db: DatabaseConnection, id: i64, status: i32) -> ApiResult<()> {
+    let meal = setmeal::Entity::find_by_id(id)
+        .one(&db)
+        .await
+        .map_err(|_| ApiError::Internal)?
+        .ok_or(ApiError::NotFound)?;
+
+    let mut meal = meal.into_active_model();
+
+    meal.status = ActiveValue::Set(Some(status));
+    meal.update(&db).await.map_err(|_| ApiError::Internal)?;
+
+    Ok(())
 }

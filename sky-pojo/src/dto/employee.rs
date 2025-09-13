@@ -27,8 +27,3 @@ pub struct EmployeePageQueryDto {
     pub page: i32,
     pub page_size: i32,
 }
-
-#[derive(Debug, Deserialize)]
-pub struct StateQuery {
-    pub id: i64,
-}

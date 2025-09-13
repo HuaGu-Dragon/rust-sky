@@ -1,5 +1,5 @@
 use rust_decimal::Decimal;
-use sea_orm::{ActiveValue::Set, prelude::DateTime};
+use sea_orm::prelude::DateTime;
 use serde::Serialize;
 
 use crate::entities::{setmeal, setmeal_dish};
