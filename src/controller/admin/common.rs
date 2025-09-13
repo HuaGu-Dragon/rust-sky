@@ -12,7 +12,7 @@ pub fn create_router() -> Router<AppState> {
 // Upload file
 //TODO: Save file to local or cloud storage and return the file path
 // I don't actually know which way to go, I don't have a oss account, but I can save it to local first
-async fn upload(mut multiple: Multipart) -> ApiReturn<String> {
+async fn upload(mut _multiple: Multipart) -> ApiReturn<String> {
     // while let Ok(Some(_field)) = multiple.next_field().await {}
     // todo!()
     Ok(ApiResponse::success(

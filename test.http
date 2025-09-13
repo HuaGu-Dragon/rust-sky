@@ -1,4 +1,4 @@
-@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzU3NzU1NzA5LCJpYXQiOjE3NTc3NTIxMDl9.LbvUc_3F07KWAHvQHnzdar2w4PdNWCIkYlRysU3zLvU
+@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzU3NzY0MTcyLCJpYXQiOjE3NTc3NjA1NzJ9.QdLVWhbQ29UIvFUbsFb2twG74giQ0oKb8GmwnuG5a3Q
 ### Login
 
 POST http://localhost:8080/admin/employee/login
@@ -105,3 +105,27 @@ Authorization: Bearer {{token}}
 ### Query Dish by ID (Requires Auth)
 GET http://localhost:8080/admin/dish/53
 Authorization: Bearer {{token}}
+
+### Update Meal (Requires Auth)
+PUT http://localhost:8080/admin/setmeal
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "categoryId": 15,
+    "categoryName": "商务套餐",
+    "description": "test update",
+    "id": 33,
+    "idType": 15,
+    "name": "test",
+    "price": "100",
+    "setmealDishes": [
+        {
+            "dishId": 50,
+            "name": "馒头",
+            "copies": 3,
+            "price": 1
+        }
+    ],
+    "status": 0
+}

@@ -9,14 +9,15 @@ use crate::entities::setmeal_dish::ActiveModel;
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SetmealDto {
-    category_id: i64,
-    description: Option<String>,
-    id: Option<i64>,
-    image: String,
-    name: String,
-    price: Decimal,
-    setmeal_dishes: Vec<SetmealDishDto>,
-    status: i32,
+    pub category_id: i64,
+    pub description: Option<String>,
+    pub id: Option<i64>,
+    pub image: String,
+    pub name: String,
+    #[serde(deserialize_with = "super::deserialize")]
+    pub price: Decimal,
+    pub setmeal_dishes: Vec<SetmealDishDto>,
+    pub status: i32,
 }
 
 #[derive(Deserialize)]
@@ -36,6 +37,7 @@ pub struct SetmealDishDto {
     copies: i32,
     dish_id: i64,
     name: String,
+    #[serde(deserialize_with = "super::deserialize")]
     price: Decimal,
 }
 

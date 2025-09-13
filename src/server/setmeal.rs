@@ -9,7 +9,10 @@ use sky_pojo::{
     },
 };
 
-use crate::server::error::{ApiError, ApiResult};
+use crate::{
+    server::error::{ApiError, ApiResult},
+    update_params,
+};
 
 pub async fn save(id: i64, db: DatabaseConnection, setmeal: SetmealDto) -> ApiResult<()> {
     let (mut setmeal, setmeal_dishes) = setmeal.into_active_model();
@@ -125,5 +128,50 @@ pub async fn status(db: DatabaseConnection, id: i64, status: i32) -> ApiResult<(
     meal.status = ActiveValue::Set(Some(status));
     meal.update(&db).await.map_err(|_| ApiError::Internal)?;
 
+    Ok(())
+}
+
+pub async fn update(db: DatabaseConnection, setmeal: SetmealDto) -> ApiResult<()> {
+    let meal_has = setmeal::Entity::find_by_id(
+        setmeal
+            .id
+            .ok_or_else(|| ApiError::BadRequest("ID is required".to_string()))?,
+    )
+    .one(&db)
+    .await
+    .map_err(|_| ApiError::Internal)?
+    .ok_or(ApiError::NotFound)?;
+
+    let id = meal_has.id;
+    let mut meal_has = meal_has.into_active_model();
+
+    update_params!(meal_has, name, setmeal.name);
+    update_params!(meal_has, category_id, setmeal.category_id);
+    update_params!(meal_has, price, setmeal.price);
+    update_params!(meal_has, image, Some(setmeal.image));
+    update_params!(meal_has, description, setmeal.description);
+    update_params!(meal_has, status, Some(setmeal.status));
+
+    let txn = db.begin().await.map_err(|_| ApiError::Internal)?;
+
+    setmeal_dish::Entity::delete_many()
+        .filter(setmeal_dish::Column::SetmealId.eq(id))
+        .exec(&txn)
+        .await
+        .map_err(|_| ApiError::Internal)?;
+
+    let task = setmeal.setmeal_dishes.into_iter().map(|m| {
+        let mut model = m.into_active_model();
+        model.setmeal_id = ActiveValue::Set(Some(id));
+        model.insert(&txn)
+    });
+
+    try_join_all(task).await.map_err(|_| ApiError::Internal)?;
+    meal_has
+        .update(&txn)
+        .await
+        .map_err(|_| ApiError::Internal)?;
+
+    txn.commit().await.map_err(|_| ApiError::Internal)?;
     Ok(())
 }

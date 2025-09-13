@@ -1,3 +1,4 @@
+use rust_decimal::{Decimal, prelude::FromPrimitive};
 use serde::{
     Deserialize, Deserializer,
     de::{self, Unexpected},
@@ -41,5 +42,30 @@ where
             .map(Some)
             .map_err(|_| de::Error::invalid_value(Unexpected::Str(&s), &"an integer or empty")),
         Opt::N => Ok(None),
+    }
+}
+
+pub fn deserialize<'de, D>(des: D) -> Result<Decimal, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    #[derive(Deserialize)]
+    #[serde(untagged)]
+    enum Helper {
+        F64(f64),
+        I64(i64),
+        U64(u64),
+        Str(String),
+    }
+
+    match Helper::deserialize(des)? {
+        Helper::F64(v) => {
+            Decimal::from_f64(v).ok_or_else(|| de::Error::custom("Invalid f64 for Decimal"))
+        }
+        Helper::I64(v) => Ok(Decimal::from(v)),
+        Helper::U64(v) => Ok(Decimal::from(v)),
+        Helper::Str(s) => s
+            .parse::<Decimal>()
+            .map_err(|e| de::Error::custom(format!("ParseDecimalError: {e}"))),
     }
 }

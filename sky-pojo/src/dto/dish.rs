@@ -13,6 +13,7 @@ pub struct DishDto {
     pub id: i64,
     pub name: String,
     pub category_id: i64,
+    #[serde(deserialize_with = "super::deserialize")]
     pub price: Decimal,
     pub image: String,
     pub description: Option<String>,

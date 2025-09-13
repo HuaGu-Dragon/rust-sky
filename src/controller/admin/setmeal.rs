@@ -21,7 +21,7 @@ use crate::{
 
 pub fn create_router() -> Router<AppState> {
     Router::new()
-        .route("/", post(save).delete(delete_meal))
+        .route("/", post(save).delete(delete_meal).put(update))
         .route("/{id}", get(get_meal))
         .route("/status/{status}", post(status))
         .route("/page", get(page))
@@ -75,5 +75,14 @@ async fn status(
     Query(StateQuery { id }): Query<StateQuery>,
 ) -> ApiReturn<()> {
     server::setmeal::status(db, id, status).await?;
+    Ok(ApiResponse::success(()))
+}
+
+async fn update(
+    Id(_id): Id,
+    State(AppState { db }): State<AppState>,
+    Json(setmeal): Json<SetmealDto>,
+) -> ApiReturn<()> {
+    server::setmeal::update(db, setmeal).await?;
     Ok(ApiResponse::success(()))
 }
