@@ -4,7 +4,10 @@ use axum::{
     routing::{get, put},
 };
 use sky_pojo::{
-    dto::dish::{DishDto, DishQueryDelete, DishQueryDto, DishQueryId},
+    dto::{
+        QueryDelete,
+        dish::{DishDto, DishQueryDto, DishQueryId},
+    },
     entities::dish::Model,
     vo::{
         Page,
@@ -55,7 +58,7 @@ async fn get_dish(
 async fn delete_dish(
     Id(_id): Id,
     State(AppState { db }): State<AppState>,
-    Query(query): Query<DishQueryDelete>,
+    Query(query): Query<QueryDelete>,
 ) -> ApiReturn<()> {
     let ids = query
         .ids

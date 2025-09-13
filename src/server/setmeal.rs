@@ -1,8 +1,8 @@
 use futures_util::future::try_join_all;
-use sea_orm::{QueryTrait, prelude::*};
+use sea_orm::{Condition, QueryTrait, TransactionTrait, prelude::*};
 use sky_pojo::{
     dto::setmeal::{SetmealDto, SetmealPageQuery},
-    entities::{category, setmeal},
+    entities::{category, setmeal, setmeal_dish},
     vo::{Page, setmeal::SetmealVo},
 };
 
@@ -51,4 +51,42 @@ pub async fn page(db: DatabaseConnection, query: SetmealPageQuery) -> ApiResult<
 
     let items = items.into_iter().map(SetmealVo::from).collect();
     Ok(Page::new(num_pages as i64, items))
+}
+
+pub async fn delete(db: DatabaseConnection, ids: Vec<i64>) -> ApiResult<()> {
+    let meals = setmeal::Entity::find()
+        .filter(
+            Condition::all()
+                .add(setmeal::Column::Id.is_in(ids))
+                .add(setmeal::Column::Status.eq(0)),
+        )
+        .all(&db)
+        .await
+        .map_err(|_| ApiError::Internal)?;
+
+    if meals.is_empty() {
+        return Err(ApiError::BadRequest(
+            "Some meals are currently on sale".to_string(),
+        ));
+    }
+
+    let valid_ids: Vec<i64> = meals.iter().map(|m| m.id).collect();
+
+    let txn = db.begin().await.map_err(|_| ApiError::Internal)?;
+
+    setmeal_dish::Entity::delete_many()
+        .filter(setmeal_dish::Column::SetmealId.is_in(valid_ids.clone()))
+        .exec(&txn)
+        .await
+        .map_err(|_| ApiError::Internal)?;
+
+    setmeal::Entity::delete_many()
+        .filter(setmeal::Column::Id.is_in(valid_ids))
+        .exec(&txn)
+        .await
+        .map_err(|_| ApiError::Internal)?;
+
+    txn.commit().await.map_err(|_| ApiError::Internal)?;
+
+    Ok(())
 }

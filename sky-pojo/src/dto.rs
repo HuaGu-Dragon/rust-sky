@@ -8,6 +8,12 @@ pub mod dish;
 pub mod employee;
 pub mod setmeal;
 
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct QueryDelete {
+    pub ids: String,
+}
+
 // uri=/admin/dish/page?page=1&pageSize=10&status=
 // what is that fucking request uri???
 pub fn empty_string_as_none<'de, D>(deserializer: D) -> Result<Option<i32>, D::Error>

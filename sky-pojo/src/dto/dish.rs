@@ -75,12 +75,6 @@ pub struct DishQueryId {
     pub category_id: i64,
 }
 
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct DishQueryDelete {
-    pub ids: String,
-}
-
 #[derive(Debug, Deserialize, DeriveIntoActiveModel)]
 #[serde(rename_all = "camelCase")]
 pub struct DishFlavorDto {
