@@ -26,6 +26,7 @@ pub struct SetmealPageQuery {
     pub name: Option<String>,
     pub page: i32,
     pub page_size: i32,
+    #[serde(deserialize_with = "super::empty_string_as_none", default)]
     pub status: Option<i32>,
 }
 
@@ -36,7 +37,6 @@ pub struct SetmealDishDto {
     dish_id: i64,
     name: String,
     price: Decimal,
-    setmeal_id: i64,
 }
 
 impl SetmealDto {

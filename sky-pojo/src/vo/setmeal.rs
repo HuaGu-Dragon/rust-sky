@@ -10,6 +10,7 @@ pub struct SetmealVo {
     pub id: i64,
     pub category_id: i64,
     pub name: String,
+    #[serde(with = "rust_decimal::serde::float")]
     pub price: Decimal,
     pub status: i32,
     pub description: String,

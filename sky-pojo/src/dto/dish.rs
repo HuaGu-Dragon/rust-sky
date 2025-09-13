@@ -1,10 +1,7 @@
 #![allow(clippy::needless_update)]
 
 use sea_orm::{ActiveValue, IntoActiveModel, prelude::*};
-use serde::{
-    Deserialize, Deserializer,
-    de::{self, Unexpected},
-};
+use serde::Deserialize;
 
 use crate::entities::dish_flavor::ActiveModel;
 use crate::entities::{dish, dish_flavor};
@@ -68,7 +65,7 @@ pub struct DishQueryDto {
     pub name: Option<String>,
     pub page: i32,
     pub page_size: i32,
-    #[serde(deserialize_with = "empty_string_as_none", default)]
+    #[serde(deserialize_with = "super::empty_string_as_none", default)]
     pub status: Option<i32>,
 }
 
@@ -82,31 +79,6 @@ pub struct DishQueryId {
 #[serde(rename_all = "camelCase")]
 pub struct DishQueryDelete {
     pub ids: String,
-}
-
-// uri=/admin/dish/page?page=1&pageSize=10&status=
-// what is that fucking request uri???
-fn empty_string_as_none<'de, D>(deserializer: D) -> Result<Option<i32>, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    #[derive(Deserialize)]
-    #[serde(untagged)]
-    enum Opt {
-        I(i32),
-        S(String),
-        N,
-    }
-
-    match Opt::deserialize(deserializer)? {
-        Opt::I(i) => Ok(Some(i)),
-        Opt::S(s) if s.trim().is_empty() => Ok(None),
-        Opt::S(s) => s
-            .parse::<i32>()
-            .map(Some)
-            .map_err(|_| de::Error::invalid_value(Unexpected::Str(&s), &"an integer or empty")),
-        Opt::N => Ok(None),
-    }
 }
 
 #[derive(Debug, Deserialize, DeriveIntoActiveModel)]
