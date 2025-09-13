@@ -16,7 +16,7 @@ use crate::{
 pub fn create_router() -> Router<AppState> {
     Router::new()
         .route("/", post(save))
-        .route("page", get(page))
+        .route("/page", get(page))
 }
 
 async fn save(
