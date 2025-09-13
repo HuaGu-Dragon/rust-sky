@@ -1,6 +1,6 @@
 use axum::{
     Json, Router,
-    extract::{Query, State},
+    extract::{Path, Query, State},
     routing::{get, post},
 };
 use sky_pojo::{
@@ -8,7 +8,10 @@ use sky_pojo::{
         QueryDelete,
         setmeal::{SetmealDto, SetmealPageQuery},
     },
-    vo::{Page, setmeal::SetmealVo},
+    vo::{
+        Page,
+        setmeal::{SetmealDetailVo, SetmealVo},
+    },
 };
 
 use crate::{
@@ -19,6 +22,7 @@ use crate::{
 pub fn create_router() -> Router<AppState> {
     Router::new()
         .route("/", post(save).delete(delete_meal))
+        .route("/{id}", get(get_meal))
         .route("/page", get(page))
 }
 
@@ -52,4 +56,13 @@ async fn delete_meal(
         .collect();
     server::setmeal::delete(db, ids).await?;
     Ok(ApiResponse::success(()))
+}
+
+async fn get_meal(
+    Id(_id): Id,
+    State(AppState { db }): State<AppState>,
+    Path(id): Path<i64>,
+) -> ApiReturn<SetmealDetailVo> {
+    let meal = server::setmeal::get(db, id).await?;
+    Ok(ApiResponse::success(meal))
 }

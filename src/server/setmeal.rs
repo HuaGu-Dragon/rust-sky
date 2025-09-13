@@ -1,9 +1,12 @@
-use futures_util::future::try_join_all;
+use futures_util::{future::try_join_all, try_join};
 use sea_orm::{Condition, QueryTrait, TransactionTrait, prelude::*};
 use sky_pojo::{
     dto::setmeal::{SetmealDto, SetmealPageQuery},
     entities::{category, setmeal, setmeal_dish},
-    vo::{Page, setmeal::SetmealVo},
+    vo::{
+        Page,
+        setmeal::{SetmealDetailVo, SetmealVo},
+    },
 };
 
 use crate::server::error::{ApiError, ApiResult};
@@ -89,4 +92,23 @@ pub async fn delete(db: DatabaseConnection, ids: Vec<i64>) -> ApiResult<()> {
     txn.commit().await.map_err(|_| ApiError::Internal)?;
 
     Ok(())
+}
+
+pub async fn get(db: DatabaseConnection, id: i64) -> ApiResult<SetmealDetailVo> {
+    let meal = setmeal::Entity::find_by_id(id)
+        .one(&db)
+        .await
+        .map_err(|_| ApiError::Internal)?
+        .ok_or(ApiError::NotFound)?;
+
+    let (category, dishes) = try_join!(
+        meal.find_related(category::Entity).one(&db),
+        meal.find_related(setmeal_dish::Entity).all(&db)
+    )
+    .map_err(|_| ApiError::Internal)?;
+
+    let meal = (meal, category).into();
+    let meal = (meal, dishes).into();
+
+    Ok(meal)
 }
