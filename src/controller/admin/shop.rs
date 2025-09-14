@@ -7,7 +7,7 @@ use redis::AsyncTypedCommands;
 
 use crate::{
     app::AppState,
-    server::{ApiReturn, error::ApiError, response::ApiResponse},
+    server::{ApiReturn, error::ApiError, extract::Id, response::ApiResponse},
 };
 
 const KEY: &str = "SHOP_STATUS";
@@ -19,6 +19,7 @@ pub fn create_router() -> Router<AppState> {
 }
 
 async fn set_status(
+    Id(_id): Id,
     State(AppState { redis, .. }): State<AppState>,
     Path(status): Path<i32>,
 ) -> ApiReturn<()> {
@@ -30,7 +31,7 @@ async fn set_status(
     Ok(ApiResponse::success(()))
 }
 
-async fn get_status(State(AppState { redis, .. }): State<AppState>) -> ApiReturn<i32> {
+async fn get_status(Id(_id): Id, State(AppState { redis, .. }): State<AppState>) -> ApiReturn<i32> {
     let mut conn = redis.clone();
     let status = conn
         .get_int(KEY)

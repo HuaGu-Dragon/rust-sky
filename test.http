@@ -1,4 +1,4 @@
-@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzU3NzY0MTcyLCJpYXQiOjE3NTc3NjA1NzJ9.QdLVWhbQ29UIvFUbsFb2twG74giQ0oKb8GmwnuG5a3Q
+@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzU3ODQ5MTY3LCJpYXQiOjE3NTc4NDU1Njd9.YMa_Pjs8Bb2Fq3D25QWOW-twr0S3zMpgNPH5GmWK9Uk
 ### Login
 
 POST http://localhost:8080/admin/employee/login
@@ -129,3 +129,11 @@ Authorization: Bearer {{token}}
     ],
     "status": 0
 }
+
+### Query Shop Status (Requires Auth)
+GET http://localhost:8080/admin/shop/status
+Authorization: Bearer {{token}}
+
+### Update Shop Status (Requires Auth)
+PUT http://localhost:8080/admin/shop/0
+Authorization: Bearer {{token}}
