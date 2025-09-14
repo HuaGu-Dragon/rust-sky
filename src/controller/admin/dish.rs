@@ -30,7 +30,7 @@ pub fn create_router() -> Router<AppState> {
 
 async fn save(
     Id(id): Id,
-    State(AppState { db }): State<AppState>,
+    State(AppState { db, .. }): State<AppState>,
     Json(category): Json<DishDto>,
 ) -> ApiReturn<()> {
     server::dish::save(id, db, category).await?;
@@ -39,7 +39,7 @@ async fn save(
 
 async fn update(
     Id(id): Id,
-    State(AppState { db }): State<AppState>,
+    State(AppState { db, .. }): State<AppState>,
     Json(category): Json<DishDto>,
 ) -> ApiReturn<()> {
     server::dish::update(id, db, category).await?;
@@ -48,7 +48,7 @@ async fn update(
 
 async fn get_dish(
     Id(_id): Id,
-    State(AppState { db }): State<AppState>,
+    State(AppState { db, .. }): State<AppState>,
     Path(id): Path<i64>,
 ) -> ApiReturn<DishDetailVO> {
     let dish = server::dish::get(db, id).await?;
@@ -57,7 +57,7 @@ async fn get_dish(
 
 async fn delete_dish(
     Id(_id): Id,
-    State(AppState { db }): State<AppState>,
+    State(AppState { db, .. }): State<AppState>,
     Query(query): Query<QueryDelete>,
 ) -> ApiReturn<()> {
     let ids = query
@@ -71,7 +71,7 @@ async fn delete_dish(
 
 async fn page(
     Id(_id): Id,
-    State(AppState { db }): State<AppState>,
+    State(AppState { db, .. }): State<AppState>,
     Query(query): Query<DishQueryDto>,
 ) -> ApiReturn<Page<DishVO>> {
     let dishes = server::dish::page(db, query).await?;
@@ -80,7 +80,7 @@ async fn page(
 
 async fn list(
     Id(_id): Id,
-    State(AppState { db }): State<AppState>,
+    State(AppState { db, .. }): State<AppState>,
     Query(query): Query<DishQueryId>,
 ) -> ApiReturn<Vec<Model>> {
     let dishes = server::dish::list(db, query.category_id).await?;

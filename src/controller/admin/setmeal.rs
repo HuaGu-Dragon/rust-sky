@@ -29,7 +29,7 @@ pub fn create_router() -> Router<AppState> {
 
 async fn save(
     Id(id): Id,
-    State(AppState { db }): State<AppState>,
+    State(AppState { db, .. }): State<AppState>,
     Json(setmeal): Json<SetmealDto>,
 ) -> ApiReturn<()> {
     server::setmeal::save(id, db, setmeal).await?;
@@ -38,7 +38,7 @@ async fn save(
 
 async fn page(
     Id(_id): Id,
-    State(AppState { db }): State<AppState>,
+    State(AppState { db, .. }): State<AppState>,
     Query(setmeal): Query<SetmealPageQuery>,
 ) -> ApiReturn<Page<SetmealVo>> {
     let meals = server::setmeal::page(db, setmeal).await?;
@@ -47,7 +47,7 @@ async fn page(
 
 async fn delete_meal(
     Id(_id): Id,
-    State(AppState { db }): State<AppState>,
+    State(AppState { db, .. }): State<AppState>,
     Query(query): Query<QueryDelete>,
 ) -> ApiReturn<()> {
     let ids = query
@@ -61,7 +61,7 @@ async fn delete_meal(
 
 async fn get_meal(
     Id(_id): Id,
-    State(AppState { db }): State<AppState>,
+    State(AppState { db, .. }): State<AppState>,
     Path(id): Path<i64>,
 ) -> ApiReturn<SetmealDetailVo> {
     let meal = server::setmeal::get(db, id).await?;
@@ -70,7 +70,7 @@ async fn get_meal(
 
 async fn status(
     Id(_id): Id,
-    State(AppState { db }): State<AppState>,
+    State(AppState { db, .. }): State<AppState>,
     Path(status): Path<i32>,
     Query(StateQuery { id }): Query<StateQuery>,
 ) -> ApiReturn<()> {
@@ -80,7 +80,7 @@ async fn status(
 
 async fn update(
     Id(_id): Id,
-    State(AppState { db }): State<AppState>,
+    State(AppState { db, .. }): State<AppState>,
     Json(setmeal): Json<SetmealDto>,
 ) -> ApiReturn<()> {
     server::setmeal::update(db, setmeal).await?;

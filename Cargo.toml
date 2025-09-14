@@ -16,6 +16,7 @@ axum-extra = { workspace = true }
 axum-valid = { workspace = true }
 tower-http = { workspace = true }
 serde = { workspace = true }
+redis = { workspace = true }
 sqlx = { workspace = true }
 sea-orm = { workspace = true }
 tracing = { workspace = true }
@@ -45,6 +46,12 @@ tower-http = { version = "0.6.6", features = [
 ] }
 
 serde = { version = "1.0.219", features = ["derive"] }
+
+redis = { version = "0.32.5", features = [
+    "tokio-comp",
+    "json",
+    "connection-manager",
+] }
 
 sqlx = { version = "0.8.6", features = ["runtime-tokio-native-tls"] }
 sea-orm = { version = "1.1.14", features = [

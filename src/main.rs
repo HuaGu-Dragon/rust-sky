@@ -3,6 +3,7 @@ mod config;
 mod controller;
 mod database;
 mod logger;
+mod redis;
 mod server;
 
 #[tokio::main]

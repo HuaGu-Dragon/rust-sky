@@ -30,7 +30,7 @@ pub fn create_router() -> Router<AppState> {
 
 async fn save(
     Id(id): Id,
-    State(AppState { db }): State<AppState>,
+    State(AppState { db, .. }): State<AppState>,
     Json(employee): Json<EmployeeDto>,
 ) -> ApiReturn<()> {
     info!("Add new employee");
@@ -41,7 +41,7 @@ async fn save(
 
 async fn update(
     Id(_id): Id,
-    State(AppState { db }): State<AppState>,
+    State(AppState { db, .. }): State<AppState>,
     Json(employee): Json<EmployeeDto>,
 ) -> ApiReturn<()> {
     info!("Update employee information");
@@ -52,7 +52,7 @@ async fn update(
 
 async fn get_employee(
     Id(_id): Id,
-    State(AppState { db }): State<AppState>,
+    State(AppState { db, .. }): State<AppState>,
     Path(id): Path<i64>,
 ) -> ApiReturn<Model> {
     let employee = server::employee::get_by_id(db, id).await?;
@@ -60,7 +60,7 @@ async fn get_employee(
 }
 
 async fn login(
-    State(AppState { db }): State<AppState>,
+    State(AppState { db, .. }): State<AppState>,
     Json(employee): Json<EmployeeLoginDto>,
 ) -> ApiReturn<EmployeeLoginVO> {
     let employee = server::employee::login(db, employee).await?;
@@ -84,7 +84,7 @@ async fn logout() -> ApiReturn<()> {
 
 async fn page(
     Id(_id): Id,
-    State(AppState { db }): State<AppState>,
+    State(AppState { db, .. }): State<AppState>,
     Query(employee): Query<EmployeePageQueryDto>,
 ) -> ApiReturn<Page<Model>> {
     let employees = server::employee::page_query(db, employee).await?;
@@ -94,7 +94,7 @@ async fn page(
 
 async fn status(
     Id(_id): Id,
-    State(AppState { db }): State<AppState>,
+    State(AppState { db, .. }): State<AppState>,
     Path(status): Path<i32>,
     Query(StateQuery { id }): Query<StateQuery>,
 ) -> ApiReturn<()> {

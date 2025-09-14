@@ -24,7 +24,7 @@ pub fn create_router() -> Router<AppState> {
 
 async fn save(
     Id(id): Id,
-    State(AppState { db }): State<AppState>,
+    State(AppState { db, .. }): State<AppState>,
     Json(category): Json<CategoryDto>,
 ) -> ApiReturn<()> {
     server::category::save(id, db, category).await?;
@@ -33,7 +33,7 @@ async fn save(
 
 async fn update(
     Id(_id): Id,
-    State(AppState { db }): State<AppState>,
+    State(AppState { db, .. }): State<AppState>,
     Json(category): Json<CategoryUpdateDto>,
 ) -> ApiReturn<()> {
     server::category::update(db, category).await?;
@@ -42,7 +42,7 @@ async fn update(
 
 async fn delete_category(
     Id(_id): Id,
-    State(AppState { db }): State<AppState>,
+    State(AppState { db, .. }): State<AppState>,
     Query(category): Query<IdQuery>,
 ) -> ApiReturn<()> {
     server::category::delete(db, category.id).await?;
@@ -51,7 +51,7 @@ async fn delete_category(
 
 async fn status(
     Id(_id): Id,
-    State(AppState { db }): State<AppState>,
+    State(AppState { db, .. }): State<AppState>,
     Path(status): Path<i32>,
     Query(category): Query<IdQuery>,
 ) -> ApiReturn<()> {
@@ -61,7 +61,7 @@ async fn status(
 
 async fn list(
     Id(_id): Id,
-    State(AppState { db }): State<AppState>,
+    State(AppState { db, .. }): State<AppState>,
     Query(category): Query<TypeQuery>,
 ) -> ApiReturn<Vec<Model>> {
     let categories = server::category::list(db, category.r#type).await?;
@@ -70,7 +70,7 @@ async fn list(
 
 async fn page(
     Id(_id): Id,
-    State(AppState { db }): State<AppState>,
+    State(AppState { db, .. }): State<AppState>,
     Query(category): Query<CategoryQueryDto>,
 ) -> ApiReturn<Page<Model>> {
     let categories = server::category::page(db, category).await?;

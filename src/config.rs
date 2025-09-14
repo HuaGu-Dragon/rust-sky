@@ -2,18 +2,22 @@ use std::sync::LazyLock;
 
 use serde::Deserialize;
 
-use crate::config::{auth::AuthConfig, database::DatabaseConfig, server::ServerConfig};
+use crate::config::{
+    auth::AuthConfig, database::DatabaseConfig, redis::RedisConfig, server::ServerConfig,
+};
 
 pub mod auth;
 mod database;
+mod redis;
 pub mod server;
 
 static CONFIG: LazyLock<AppConfig> = LazyLock::new(AppConfig::load);
 #[derive(Debug, Deserialize)]
 pub struct AppConfig {
-    database: DatabaseConfig,
-    server: ServerConfig,
     auth: AuthConfig,
+    database: DatabaseConfig,
+    redis: RedisConfig,
+    server: ServerConfig,
 }
 
 impl AppConfig {
@@ -31,16 +35,20 @@ impl AppConfig {
             .expect("Failed to deserialize config")
     }
 
+    pub fn auth(&self) -> &AuthConfig {
+        &self.auth
+    }
+
     pub fn database(&self) -> &DatabaseConfig {
         &self.database
     }
 
-    pub fn server(&self) -> &server::ServerConfig {
-        &self.server
+    pub fn redis(&self) -> &redis::RedisConfig {
+        &self.redis
     }
 
-    pub fn auth(&self) -> &AuthConfig {
-        &self.auth
+    pub fn server(&self) -> &server::ServerConfig {
+        &self.server
     }
 }
 
