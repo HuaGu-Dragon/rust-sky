@@ -4,6 +4,7 @@ pub mod dish;
 pub mod employee;
 pub mod flavor;
 pub mod setmeal;
+pub mod user;
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Page<T> {
