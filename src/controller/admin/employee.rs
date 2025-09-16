@@ -15,7 +15,12 @@ use tracing::info;
 
 use crate::{
     app::AppState,
-    server::{self, ApiReturn, auth, extract::Id, response::ApiResponse},
+    server::{
+        self, ApiReturn,
+        auth::{self, JwtAuthKey},
+        extract::AdminId,
+        response::ApiResponse,
+    },
 };
 
 pub fn create_router() -> Router<AppState> {
@@ -29,7 +34,7 @@ pub fn create_router() -> Router<AppState> {
 }
 
 async fn save(
-    Id(id): Id,
+    AdminId(id): AdminId,
     State(AppState { db, .. }): State<AppState>,
     Json(employee): Json<EmployeeDto>,
 ) -> ApiReturn<()> {
@@ -40,7 +45,7 @@ async fn save(
 }
 
 async fn update(
-    Id(_id): Id,
+    AdminId(_id): AdminId,
     State(AppState { db, .. }): State<AppState>,
     Json(employee): Json<EmployeeDto>,
 ) -> ApiReturn<()> {
@@ -51,7 +56,7 @@ async fn update(
 }
 
 async fn get_employee(
-    Id(_id): Id,
+    AdminId(_id): AdminId,
     State(AppState { db, .. }): State<AppState>,
     Path(id): Path<i64>,
 ) -> ApiReturn<Model> {
@@ -69,7 +74,7 @@ async fn login(
         id: employee.id,
         user_name: employee.username,
         name: employee.name,
-        token: auth::jwt_service().encode(employee.id)?,
+        token: auth::jwt_service().encode(JwtAuthKey::AdminId, employee.id)?,
     };
 
     info!("Login successful for user: {}", employee.user_name);
@@ -83,7 +88,7 @@ async fn logout() -> ApiReturn<()> {
 }
 
 async fn page(
-    Id(_id): Id,
+    AdminId(_id): AdminId,
     State(AppState { db, .. }): State<AppState>,
     Query(employee): Query<EmployeePageQueryDto>,
 ) -> ApiReturn<Page<Model>> {
@@ -93,7 +98,7 @@ async fn page(
 }
 
 async fn status(
-    Id(_id): Id,
+    AdminId(_id): AdminId,
     State(AppState { db, .. }): State<AppState>,
     Path(status): Path<i32>,
     Query(StateQuery { id }): Query<StateQuery>,

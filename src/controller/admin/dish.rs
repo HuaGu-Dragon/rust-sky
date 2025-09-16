@@ -17,7 +17,7 @@ use sky_pojo::{
 
 use crate::{
     app::AppState,
-    server::{self, ApiReturn, extract::Id, response::ApiResponse},
+    server::{self, ApiReturn, extract::AdminId, response::ApiResponse},
 };
 
 pub fn create_router() -> Router<AppState> {
@@ -29,7 +29,7 @@ pub fn create_router() -> Router<AppState> {
 }
 
 async fn save(
-    Id(id): Id,
+    AdminId(id): AdminId,
     State(AppState { db, .. }): State<AppState>,
     Json(category): Json<DishDto>,
 ) -> ApiReturn<()> {
@@ -38,7 +38,7 @@ async fn save(
 }
 
 async fn update(
-    Id(id): Id,
+    AdminId(id): AdminId,
     State(AppState { db, .. }): State<AppState>,
     Json(category): Json<DishDto>,
 ) -> ApiReturn<()> {
@@ -47,7 +47,7 @@ async fn update(
 }
 
 async fn get_dish(
-    Id(_id): Id,
+    AdminId(_id): AdminId,
     State(AppState { db, .. }): State<AppState>,
     Path(id): Path<i64>,
 ) -> ApiReturn<DishDetailVO> {
@@ -56,7 +56,7 @@ async fn get_dish(
 }
 
 async fn delete_dish(
-    Id(_id): Id,
+    AdminId(_id): AdminId,
     State(AppState { db, .. }): State<AppState>,
     Query(query): Query<QueryDelete>,
 ) -> ApiReturn<()> {
@@ -70,7 +70,7 @@ async fn delete_dish(
 }
 
 async fn page(
-    Id(_id): Id,
+    AdminId(_id): AdminId,
     State(AppState { db, .. }): State<AppState>,
     Query(query): Query<DishQueryDto>,
 ) -> ApiReturn<Page<DishVO>> {
@@ -79,7 +79,7 @@ async fn page(
 }
 
 async fn list(
-    Id(_id): Id,
+    AdminId(_id): AdminId,
     State(AppState { db, .. }): State<AppState>,
     Query(query): Query<DishQueryId>,
 ) -> ApiReturn<Vec<Model>> {

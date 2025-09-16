@@ -11,7 +11,7 @@ use sky_pojo::{
 
 use crate::{
     app::AppState,
-    server::{self, ApiReturn, extract::Id, response::ApiResponse},
+    server::{self, ApiReturn, extract::AdminId, response::ApiResponse},
 };
 
 pub fn create_router() -> Router<AppState> {
@@ -23,7 +23,7 @@ pub fn create_router() -> Router<AppState> {
 }
 
 async fn save(
-    Id(id): Id,
+    AdminId(id): AdminId,
     State(AppState { db, .. }): State<AppState>,
     Json(category): Json<CategoryDto>,
 ) -> ApiReturn<()> {
@@ -32,7 +32,7 @@ async fn save(
 }
 
 async fn update(
-    Id(_id): Id,
+    AdminId(_id): AdminId,
     State(AppState { db, .. }): State<AppState>,
     Json(category): Json<CategoryUpdateDto>,
 ) -> ApiReturn<()> {
@@ -41,7 +41,7 @@ async fn update(
 }
 
 async fn delete_category(
-    Id(_id): Id,
+    AdminId(_id): AdminId,
     State(AppState { db, .. }): State<AppState>,
     Query(category): Query<IdQuery>,
 ) -> ApiReturn<()> {
@@ -50,7 +50,7 @@ async fn delete_category(
 }
 
 async fn status(
-    Id(_id): Id,
+    AdminId(_id): AdminId,
     State(AppState { db, .. }): State<AppState>,
     Path(status): Path<i32>,
     Query(category): Query<IdQuery>,
@@ -60,7 +60,7 @@ async fn status(
 }
 
 async fn list(
-    Id(_id): Id,
+    AdminId(_id): AdminId,
     State(AppState { db, .. }): State<AppState>,
     Query(category): Query<TypeQuery>,
 ) -> ApiReturn<Vec<Model>> {
@@ -69,7 +69,7 @@ async fn list(
 }
 
 async fn page(
-    Id(_id): Id,
+    AdminId(_id): AdminId,
     State(AppState { db, .. }): State<AppState>,
     Query(category): Query<CategoryQueryDto>,
 ) -> ApiReturn<Page<Model>> {

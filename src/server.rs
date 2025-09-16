@@ -16,7 +16,8 @@ use crate::{
     app::AppState,
     config::server::ServerConfig,
     server::{
-        error::ApiResult, latency::LatencyLayer, middleware::AuthLayer, response::ApiResponse,
+        auth::JwtAuthKey, error::ApiResult, latency::LatencyLayer, middleware::AuthLayer,
+        response::ApiResponse,
     },
 };
 
@@ -30,6 +31,7 @@ mod latency;
 pub mod middleware;
 pub mod response;
 pub mod setmeal;
+pub mod user;
 
 pub type ApiReturn<T> = ApiResult<ApiResponse<T>>;
 
@@ -77,6 +79,7 @@ impl Server {
                         let span = tracing::info_span!(
                             "http_request",
                             id = %id,
+                            user_type = tracing::field::Empty,
                             user_id = tracing::field::Empty,
                             error = tracing::field::Empty,
                             method = %request.method(),
@@ -85,8 +88,9 @@ impl Server {
                             addr = tracing::field::Empty
                         );
 
-                        if let Some(user_id) = request.extensions().get::<i64>() {
-                            span.record("user_id", user_id);
+                        if let Some(user) = request.extensions().get::<(JwtAuthKey, i64)>() {
+                            span.record("user_type", format!("{:?}", user.0));
+                            span.record("user_id", user.1);
                         }
                         if let Some(error) = request.extensions().get::<String>() {
                             span.record("error", error);

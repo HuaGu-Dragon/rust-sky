@@ -10,6 +10,8 @@ pub enum ApiError {
     NotFound,
     #[error("Bad Request: {0}")]
     BadRequest(String),
+    #[error("Forbidden")]
+    Forbidden,
     #[error("Account is Locked")]
     AccountLocked,
     #[error("Account or Password is incorrect")]
@@ -28,6 +30,7 @@ impl ApiError {
             ApiError::LoginError | ApiError::InvalidToken(_) | ApiError::Unauthorized => {
                 axum::http::StatusCode::UNAUTHORIZED
             }
+            ApiError::Forbidden => axum::http::StatusCode::FORBIDDEN,
             ApiError::Internal => axum::http::StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::AccountLocked => axum::http::StatusCode::FORBIDDEN,
             ApiError::NotFound => axum::http::StatusCode::NOT_FOUND,

@@ -1,11 +1,11 @@
 use axum::{extract::FromRequestParts, http::request::Parts};
 
-use crate::server::error::ApiError;
+use crate::server::{auth::JwtAuthKey, error::ApiError};
 
 #[derive(Debug, Clone, Copy)]
-pub struct Id(pub i64);
+pub struct AdminId(pub i64);
 
-impl<S> FromRequestParts<S> for Id
+impl<S> FromRequestParts<S> for AdminId
 where
     S: Send + Sync,
 {
@@ -16,10 +16,14 @@ where
     #[doc = " Perform the extraction."]
     async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
         //TODO: Handle error properly
-        let id = parts
+        let (key, id) = parts
             .extensions
-            .get::<i64>()
+            .get::<(JwtAuthKey, i64)>()
             .ok_or(ApiError::Unauthorized)?;
+
+        if *key != JwtAuthKey::AdminId {
+            return Err(ApiError::Forbidden);
+        }
 
         Ok(Self(*id))
     }

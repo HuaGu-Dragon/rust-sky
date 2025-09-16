@@ -14,7 +14,10 @@ use sky_pojo::{
 };
 
 use crate::{
-    server::error::{ApiError, ApiResult},
+    server::{
+        DISABLE, ENABLE,
+        error::{ApiError, ApiResult},
+    },
     update_params,
 };
 
@@ -104,7 +107,7 @@ pub async fn delete(db: DatabaseConnection, id: Vec<i64>) -> ApiResult<()> {
         .filter(
             Condition::all()
                 .add(dish::Column::Id.is_in(id))
-                .add(dish::Column::Status.eq(0)),
+                .add(dish::Column::Status.eq(DISABLE)),
         )
         .all(&db)
         .await
@@ -182,7 +185,7 @@ pub async fn list(db: DatabaseConnection, category_id: i64) -> ApiResult<Vec<Mod
         .filter(
             Condition::all()
                 .add(dish::Column::CategoryId.eq(category_id))
-                .add(dish::Column::Status.eq(1)),
+                .add(dish::Column::Status.eq(ENABLE)),
         )
         .all(&db)
         .await

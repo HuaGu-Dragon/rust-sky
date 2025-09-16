@@ -1,3 +1,7 @@
+[app]
+app_id = "wx5eca69423233d9ea" # Replace with your actual App ID
+app_secret = ""               # Replace with your actual App Secret
+
 [auth]
 algorithm = "HS256"
 secret = "your_secret_key"
