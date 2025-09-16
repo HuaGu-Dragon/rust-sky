@@ -1,4 +1,4 @@
-use futures_util::{future::try_join_all, try_join};
+use futures_util::future::try_join_all;
 use sea_orm::{ActiveValue, Condition, IntoActiveModel, QueryTrait, TransactionTrait, prelude::*};
 use sky_pojo::{
     dto::dish::{DishDto, DishQueryDto},
@@ -27,29 +27,34 @@ pub async fn save(id: i64, db: DatabaseConnection, dish: DishDto) -> ApiResult<(
     dish.create_user = ActiveValue::Set(Some(id));
     dish.update_user = ActiveValue::Set(Some(id));
 
-    let saved = dish.insert(&db).await.map_err(|_| ApiError::Internal)?;
+    let txn = db.begin().await.map_err(|_| ApiError::Internal)?;
+
+    let saved = dish.insert(&txn).await.map_err(|_| ApiError::Internal)?;
 
     let tasks = flavors.into_iter().map(|mut flavor| {
         flavor.dish_id = ActiveValue::Set(saved.id);
-        flavor.insert(&db)
+        flavor.insert(&txn)
     });
     try_join_all(tasks).await.map_err(|_| ApiError::Internal)?;
+
+    txn.commit().await.map_err(|_| ApiError::Internal)?;
 
     Ok(())
 }
 
 pub async fn get(db: DatabaseConnection, id: i64) -> ApiResult<DishDetailVO> {
-    let dish = dish::Entity::find_by_id(id)
+    let (dish, category) = dish::Entity::find_by_id(id)
+        .find_also_related(category::Entity)
         .one(&db)
         .await
         .map_err(|_| ApiError::Internal)?
         .ok_or(ApiError::NotFound)?;
 
-    let (category, flavors) = try_join!(
-        dish.find_related(category::Entity).one(&db),
-        dish.find_related(dish_flavor::Entity).all(&db)
-    )
-    .map_err(|_| ApiError::Internal)?;
+    let flavors = dish
+        .find_related(dish_flavor::Entity)
+        .all(&db)
+        .await
+        .map_err(|_| ApiError::Internal)?;
 
     let dish = (dish, category).into();
     let dish = (dish, flavors).into();
@@ -180,18 +185,25 @@ pub async fn page(db: DatabaseConnection, query: DishQueryDto) -> ApiResult<Page
     Ok(Page::new(num_pages as i64, items))
 }
 
-pub async fn list(db: DatabaseConnection, category_id: i64) -> ApiResult<Vec<DishVO>> {
+pub async fn list(db: DatabaseConnection, category_id: i64) -> ApiResult<Vec<DishDetailVO>> {
     let dishes = dish::Entity::find()
         .filter(
             Condition::all()
                 .add(dish::Column::CategoryId.eq(category_id))
                 .add(dish::Column::Status.eq(ENABLE)),
         )
+        .find_with_related(dish_flavor::Entity)
         .all(&db)
         .await
         .map_err(|_| ApiError::Internal)?;
 
-    let dishes = dishes.into_iter().map(DishVO::from).collect();
+    let dishes = dishes
+        .into_iter()
+        .map(|(d, f)| {
+            let dish = d.into();
+            (dish, f).into()
+        })
+        .collect();
 
     Ok(dishes)
 }

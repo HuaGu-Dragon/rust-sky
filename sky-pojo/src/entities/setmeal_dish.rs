@@ -25,6 +25,12 @@ pub enum Relation {
         to = "super::setmeal::Column::Id"
     )]
     Setmeal,
+    #[sea_orm(
+        belongs_to = "super::dish::Entity",
+        from = "Column::DishId",
+        to = "super::dish::Column::Id"
+    )]
+    Dish,
 }
 
 impl ActiveModelBehavior for ActiveModel {}
@@ -32,5 +38,11 @@ impl ActiveModelBehavior for ActiveModel {}
 impl Related<super::setmeal::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Setmeal.def()
+    }
+}
+
+impl Related<super::dish::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Dish.def()
     }
 }

@@ -5,6 +5,12 @@ use serde::Deserialize;
 use crate::entities::setmeal;
 use crate::entities::setmeal_dish::ActiveModel;
 
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SetmealQueryId {
+    pub category_id: i64,
+}
+
 #[allow(unused)]
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]

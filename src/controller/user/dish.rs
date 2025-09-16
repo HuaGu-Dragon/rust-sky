@@ -1,6 +1,6 @@
 use axum::{Router, extract::State, routing::get};
 use axum_extra::extract::Query;
-use sky_pojo::{dto::dish::DishQueryId, vo::dish::DishVO};
+use sky_pojo::{dto::dish::DishQueryId, vo::dish::DishDetailVO};
 
 use crate::{
     app::AppState,
@@ -15,7 +15,7 @@ async fn list(
     UserId(_id): UserId,
     State(AppState { db, .. }): State<AppState>,
     Query(query): Query<DishQueryId>,
-) -> ApiReturn<Vec<DishVO>> {
+) -> ApiReturn<Vec<DishDetailVO>> {
     let dishes = server::dish::list(db, query.category_id).await?;
     Ok(ApiResponse::success(dishes))
 }

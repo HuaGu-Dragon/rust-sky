@@ -2,7 +2,7 @@ use rust_decimal::Decimal;
 use sea_orm::prelude::DateTime;
 use serde::Serialize;
 
-use crate::entities::{setmeal, setmeal_dish};
+use crate::entities::{dish, setmeal, setmeal_dish};
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -17,6 +17,22 @@ pub struct SetmealVo {
     pub image: String,
     pub update_time: DateTime,
     pub category_name: String,
+}
+
+impl From<setmeal::Model> for SetmealVo {
+    fn from(value: setmeal::Model) -> Self {
+        Self {
+            id: value.id,
+            category_id: value.category_id,
+            name: value.name,
+            price: value.price,
+            status: value.status.unwrap_or_default(),
+            description: value.description.unwrap_or_default(),
+            image: value.image.unwrap_or_default(),
+            update_time: value.update_time.unwrap_or_default(),
+            category_name: String::new(),
+        }
+    }
 }
 
 #[derive(Serialize)]
@@ -76,6 +92,27 @@ impl From<(SetmealVo, Vec<setmeal_dish::Model>)> for SetmealDetailVo {
         Self {
             setmeal,
             setmeal_dishes: dishes.into_iter().map(SetmealDishVo::from).collect(),
+        }
+    }
+}
+
+#[derive(Serialize)]
+pub struct UserSetmealDishVo {
+    pub copies: i32,
+    pub description: String,
+    pub image: String,
+    pub name: String,
+}
+
+// TODO: use try_from instead
+impl From<(setmeal_dish::Model, Option<dish::Model>)> for UserSetmealDishVo {
+    fn from(value: (setmeal_dish::Model, Option<dish::Model>)) -> Self {
+        let dish = value.1.unwrap();
+        Self {
+            copies: value.0.copies.unwrap_or_default(),
+            description: dish.description.unwrap_or_default(),
+            image: dish.image.unwrap_or_default(),
+            name: dish.name,
         }
     }
 }

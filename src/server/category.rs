@@ -80,6 +80,7 @@ pub async fn list(db: DatabaseConnection, r#type: Option<i32>) -> ApiResult<Vec<
         .apply_if(r#type, |query, r#type| {
             query.filter(category::Column::Type.eq(r#type))
         })
+        .filter(category::Column::Status.eq(ENABLE))
         .order_by_asc(category::Column::Sort)
         .all(&db)
         .await

@@ -2,15 +2,18 @@ use futures_util::{future::try_join_all, try_join};
 use sea_orm::{ActiveValue, Condition, IntoActiveModel, QueryTrait, TransactionTrait, prelude::*};
 use sky_pojo::{
     dto::setmeal::{SetmealDto, SetmealPageQuery},
-    entities::{category, setmeal, setmeal_dish},
+    entities::{category, dish, setmeal, setmeal_dish},
     vo::{
         Page,
-        setmeal::{SetmealDetailVo, SetmealVo},
+        setmeal::{SetmealDetailVo, SetmealVo, UserSetmealDishVo},
     },
 };
 
 use crate::{
-    server::error::{ApiError, ApiResult},
+    server::{
+        ENABLE,
+        error::{ApiError, ApiResult},
+    },
     update_params,
 };
 
@@ -174,4 +177,35 @@ pub async fn update(db: DatabaseConnection, setmeal: SetmealDto) -> ApiResult<()
 
     txn.commit().await.map_err(|_| ApiError::Internal)?;
     Ok(())
+}
+
+pub async fn list(db: DatabaseConnection, category_id: i64) -> ApiResult<Vec<SetmealVo>> {
+    let meals = setmeal::Entity::find()
+        .filter(
+            Condition::all()
+                .add(setmeal::Column::CategoryId.eq(category_id))
+                .add(setmeal::Column::Status.eq(ENABLE)),
+        )
+        .all(&db)
+        .await
+        .map_err(|_| ApiError::Internal)?;
+
+    let meals = meals.into_iter().map(|meal| meal.into()).collect();
+    Ok(meals)
+}
+
+pub async fn get_dish(db: DatabaseConnection, id: i64) -> ApiResult<Vec<UserSetmealDishVo>> {
+    let meal_dishes = setmeal_dish::Entity::find()
+        .filter(setmeal_dish::Column::SetmealId.eq(id))
+        .find_also_related(dish::Entity)
+        .all(&db)
+        .await
+        .map_err(|_| ApiError::Internal)?;
+
+    let dishes = meal_dishes
+        .into_iter()
+        .map(UserSetmealDishVo::from)
+        .collect();
+
+    Ok(dishes)
 }
