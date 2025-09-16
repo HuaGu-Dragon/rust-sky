@@ -28,3 +28,30 @@ where
         Ok(Self(*id))
     }
 }
+
+#[derive(Debug, Clone, Copy)]
+pub struct UserId(pub i64);
+
+impl<S> FromRequestParts<S> for UserId
+where
+    S: Send + Sync,
+{
+    #[doc = " If the extractor fails it\'ll use this \"rejection\" type. A rejection is"]
+    #[doc = " a kind of error that can be converted into a response."]
+    type Rejection = ApiError;
+
+    #[doc = " Perform the extraction."]
+    async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
+        //TODO: Handle error properly
+        let (key, id) = parts
+            .extensions
+            .get::<(JwtAuthKey, i64)>()
+            .ok_or(ApiError::Unauthorized)?;
+
+        if *key != JwtAuthKey::UserId {
+            return Err(ApiError::Forbidden);
+        }
+
+        Ok(Self(*id))
+    }
+}

@@ -75,9 +75,12 @@ pub async fn status(db: DatabaseConnection, id: i64, status: i32) -> ApiResult<(
     Ok(())
 }
 
-pub async fn list(db: DatabaseConnection, r#type: i32) -> ApiResult<Vec<Model>> {
+pub async fn list(db: DatabaseConnection, r#type: Option<i32>) -> ApiResult<Vec<Model>> {
     let categories = category::Entity::find()
-        .filter(category::Column::Type.eq(r#type))
+        .apply_if(r#type, |query, r#type| {
+            query.filter(category::Column::Type.eq(r#type))
+        })
+        .order_by_asc(category::Column::Sort)
         .all(&db)
         .await
         .map_err(|_| ApiError::Internal)?;

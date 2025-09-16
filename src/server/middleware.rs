@@ -51,6 +51,17 @@ impl AsyncAuthorizeRequest<Body> for AuthLayer {
                         request.extensions_mut().insert(e.to_string());
                     }
                 }
+            } else if let Some(token) = request.headers().get("authentication")
+                && let Ok(token_str) = token.to_str()
+            {
+                match auth::jwt_service().decode(token_str) {
+                    Ok(token) => {
+                        request.extensions_mut().insert(token);
+                    }
+                    Err(e) => {
+                        request.extensions_mut().insert(e.to_string());
+                    }
+                }
             }
 
             Ok(request)

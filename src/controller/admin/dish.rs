@@ -8,7 +8,6 @@ use sky_pojo::{
         QueryDelete,
         dish::{DishDto, DishQueryDto, DishQueryId},
     },
-    entities::dish::Model,
     vo::{
         Page,
         dish::{DishDetailVO, DishVO},
@@ -82,7 +81,7 @@ async fn list(
     AdminId(_id): AdminId,
     State(AppState { db, .. }): State<AppState>,
     Query(query): Query<DishQueryId>,
-) -> ApiReturn<Vec<Model>> {
+) -> ApiReturn<Vec<DishVO>> {
     let dishes = server::dish::list(db, query.category_id).await?;
     Ok(ApiResponse::success(dishes))
 }

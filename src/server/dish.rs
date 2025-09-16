@@ -4,7 +4,7 @@ use sky_pojo::{
     dto::dish::{DishDto, DishQueryDto},
     entities::{
         category,
-        dish::{self, Model},
+        dish::{self},
         dish_flavor, setmeal_dish,
     },
     vo::{
@@ -180,7 +180,7 @@ pub async fn page(db: DatabaseConnection, query: DishQueryDto) -> ApiResult<Page
     Ok(Page::new(num_pages as i64, items))
 }
 
-pub async fn list(db: DatabaseConnection, category_id: i64) -> ApiResult<Vec<Model>> {
+pub async fn list(db: DatabaseConnection, category_id: i64) -> ApiResult<Vec<DishVO>> {
     let dishes = dish::Entity::find()
         .filter(
             Condition::all()
@@ -190,6 +190,8 @@ pub async fn list(db: DatabaseConnection, category_id: i64) -> ApiResult<Vec<Mod
         .all(&db)
         .await
         .map_err(|_| ApiError::Internal)?;
+
+    let dishes = dishes.into_iter().map(DishVO::from).collect();
 
     Ok(dishes)
 }

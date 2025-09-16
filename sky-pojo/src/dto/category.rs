@@ -55,5 +55,5 @@ pub struct IdQuery {
 
 #[derive(Deserialize)]
 pub struct TypeQuery {
-    pub r#type: i32,
+    pub r#type: Option<i32>,
 }

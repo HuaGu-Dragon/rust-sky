@@ -1,30 +1,14 @@
-use axum::{Json, Router, extract::State, routing::post};
-use sky_pojo::{dto::user::UserLoginDto, vo::user::UserLoginVo};
+use axum::Router;
 
-use crate::{
-    app::AppState,
-    server::{
-        self, ApiReturn,
-        auth::{JwtAuthKey, jwt_service},
-        response::ApiResponse,
-    },
-};
+use crate::app::AppState;
+
+mod category;
+mod dish;
+mod login;
 
 pub fn create_router() -> Router<AppState> {
-    Router::new().route("/user/login", post(login))
-}
-
-async fn login(
-    State(AppState { db, .. }): State<AppState>,
-    Json(UserLoginDto { code }): Json<UserLoginDto>,
-) -> ApiReturn<UserLoginVo> {
-    let user = server::user::login(db, code).await?;
-
-    let user = UserLoginVo {
-        id: user.id,
-        openid: user.openid.unwrap(),
-        token: jwt_service().encode(JwtAuthKey::UserId, user.id)?,
-    };
-
-    Ok(ApiResponse::success(user))
+    Router::new()
+        .nest("/user", login::create_router())
+        .nest("/category", category::create_router())
+        .nest("/dish", dish::create_router())
 }

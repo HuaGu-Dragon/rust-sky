@@ -22,6 +22,22 @@ pub struct DishVO {
     pub category_name: String,
 }
 
+impl From<dish::Model> for DishVO {
+    fn from(dish: dish::Model) -> Self {
+        Self {
+            id: dish.id,
+            name: dish.name,
+            category_id: dish.category_id,
+            price: dish.price.unwrap_or_default(),
+            image: dish.image.unwrap_or_default(),
+            description: dish.description.unwrap_or_default(),
+            status: dish.status.unwrap_or_default(),
+            update_time: dish.update_time,
+            category_name: String::new(),
+        }
+    }
+}
+
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DishDetailVO {
