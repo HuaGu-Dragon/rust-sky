@@ -72,3 +72,13 @@ pub async fn list(id: i64, db: DatabaseConnection) -> ApiResult<Vec<CartVO>> {
 
     Ok(carts)
 }
+
+pub async fn clean(id: i64, db: DatabaseConnection) -> ApiResult<()> {
+    shopping_cart::Entity::delete_many()
+        .filter(shopping_cart::Column::UserId.eq(id))
+        .exec(&db)
+        .await
+        .map_err(|_| ApiError::Internal)?;
+
+    Ok(())
+}

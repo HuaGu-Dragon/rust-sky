@@ -1,7 +1,7 @@
 use axum::{
     Json, Router,
     extract::State,
-    routing::{get, post},
+    routing::{delete, get, post},
 };
 use sky_pojo::{dto::shopping_cart::CartDto, vo::shopping_cart::CartVO};
 
@@ -14,6 +14,7 @@ pub fn create_router() -> Router<AppState> {
     Router::new()
         .route("/add", post(add))
         .route("/list", get(list))
+        .route("/clean", delete(clean))
 }
 
 async fn add(
@@ -31,4 +32,12 @@ async fn list(
 ) -> ApiReturn<Vec<CartVO>> {
     let carts = server::shopping_cart::list(user_id, db).await?;
     Ok(ApiResponse::success(carts))
+}
+
+async fn clean(
+    UserId(user_id): UserId,
+    State(AppState { db, .. }): State<AppState>,
+) -> ApiReturn<()> {
+    server::shopping_cart::clean(user_id, db).await?;
+    Ok(ApiResponse::success(()))
 }
