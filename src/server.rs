@@ -31,6 +31,7 @@ mod latency;
 pub mod middleware;
 pub mod response;
 pub mod setmeal;
+pub mod shopping_cart;
 pub mod user;
 
 pub type ApiReturn<T> = ApiResult<ApiResponse<T>>;

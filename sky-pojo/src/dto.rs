@@ -8,6 +8,7 @@ pub mod category;
 pub mod dish;
 pub mod employee;
 pub mod setmeal;
+pub mod shopping_cart;
 pub mod user;
 
 #[derive(Debug, Deserialize)]
