@@ -2,6 +2,7 @@ use sea_orm::{ActiveValue, IntoActiveModel, QueryTrait, prelude::*};
 use sky_pojo::{
     dto::shopping_cart::CartDto,
     entities::{dish, setmeal, shopping_cart},
+    vo::shopping_cart::CartVO,
 };
 use tracing::info;
 
@@ -20,9 +21,10 @@ pub async fn add(id: i64, db: DatabaseConnection, cart_update: CartDto) -> ApiRe
         .await
         .map_err(|_| ApiError::Internal)?;
 
-    if let Some(mut cart) = carts {
-        cart.number = cart.number.saturating_add(1);
-        let cart = cart.into_active_model();
+    if let Some(cart) = carts {
+        let number = cart.number + 1;
+        let mut cart = cart.into_active_model();
+        cart.number = ActiveValue::Set(number);
         cart.update(&db).await.map_err(|_| ApiError::Internal)?;
         return Ok(());
     }
@@ -57,4 +59,16 @@ pub async fn add(id: i64, db: DatabaseConnection, cart_update: CartDto) -> ApiRe
     cart.insert(&db).await.map_err(|_| ApiError::Internal)?;
 
     Ok(())
+}
+
+pub async fn list(id: i64, db: DatabaseConnection) -> ApiResult<Vec<CartVO>> {
+    let carts = shopping_cart::Entity::find()
+        .filter(shopping_cart::Column::UserId.eq(id))
+        .all(&db)
+        .await
+        .map_err(|_| ApiError::Internal)?;
+
+    let carts = carts.into_iter().map(CartVO::from).collect();
+
+    Ok(carts)
 }
