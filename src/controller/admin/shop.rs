@@ -20,11 +20,11 @@ pub fn create_router() -> Router<AppState> {
 
 async fn set_status(
     AdminId(_id): AdminId,
-    State(AppState { redis, .. }): State<AppState>,
+    State(AppState { mut redis, .. }): State<AppState>,
     Path(status): Path<i32>,
 ) -> ApiReturn<()> {
-    let mut conn = redis.clone();
-    conn.set(KEY, status)
+    redis
+        .set(KEY, status)
         .await
         .map_err(|_| ApiError::Internal)?;
 

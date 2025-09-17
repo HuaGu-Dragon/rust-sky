@@ -1,13 +1,13 @@
 use rust_decimal::Decimal;
 use sea_orm::prelude::DateTime;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use crate::{
     entities::{category, dish, dish_flavor},
     vo::flavor::DishFlavorVO,
 };
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DishVO {
     pub id: i64,
@@ -38,7 +38,7 @@ impl From<dish::Model> for DishVO {
     }
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DishDetailVO {
     #[serde(flatten)]

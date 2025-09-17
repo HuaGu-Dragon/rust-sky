@@ -1,4 +1,5 @@
 use futures_util::future::try_join_all;
+use redis::{AsyncCommands, aio::ConnectionManager};
 use sea_orm::{ActiveValue, Condition, IntoActiveModel, QueryTrait, TransactionTrait, prelude::*};
 use sky_pojo::{
     dto::dish::{DishDto, DishQueryDto},
@@ -21,7 +22,13 @@ use crate::{
     update_params,
 };
 
-pub async fn save(id: i64, db: DatabaseConnection, dish: DishDto) -> ApiResult<()> {
+pub async fn save(
+    id: i64,
+    db: DatabaseConnection,
+    redis: ConnectionManager,
+    dish: DishDto,
+) -> ApiResult<()> {
+    let category_id = dish.category_id;
     let (mut dish, flavors) = dish.into_active_model();
 
     dish.create_user = ActiveValue::Set(Some(id));
@@ -38,6 +45,9 @@ pub async fn save(id: i64, db: DatabaseConnection, dish: DishDto) -> ApiResult<(
     try_join_all(tasks).await.map_err(|_| ApiError::Internal)?;
 
     txn.commit().await.map_err(|_| ApiError::Internal)?;
+
+    let key = format!("dish_{category_id}");
+    clean_cache(redis, &key).await?;
 
     Ok(())
 }
@@ -62,7 +72,12 @@ pub async fn get(db: DatabaseConnection, id: i64) -> ApiResult<DishDetailVO> {
     Ok(dish)
 }
 
-pub async fn update(user_id: i64, db: DatabaseConnection, dish: DishDto) -> ApiResult<()> {
+pub async fn update(
+    user_id: i64,
+    db: DatabaseConnection,
+    redis: ConnectionManager,
+    dish: DishDto,
+) -> ApiResult<()> {
     let dish_has = dish::Entity::find_by_id(dish.id)
         .one(&db)
         .await
@@ -104,10 +119,16 @@ pub async fn update(user_id: i64, db: DatabaseConnection, dish: DishDto) -> ApiR
 
     txn.commit().await.map_err(|_| ApiError::Internal)?;
 
+    clean_cache(redis, "dish_*").await?;
+
     Ok(())
 }
 
-pub async fn delete(db: DatabaseConnection, id: Vec<i64>) -> ApiResult<()> {
+pub async fn delete(
+    db: DatabaseConnection,
+    redis: ConnectionManager,
+    id: Vec<i64>,
+) -> ApiResult<()> {
     let valid_dishes = dish::Entity::find()
         .filter(
             Condition::all()
@@ -153,6 +174,8 @@ pub async fn delete(db: DatabaseConnection, id: Vec<i64>) -> ApiResult<()> {
         .map_err(|_| ApiError::Internal)?;
 
     txn.commit().await.map_err(|_| ApiError::Internal)?;
+
+    clean_cache(redis, "dish_*").await?;
 
     Ok(())
 }
@@ -206,4 +229,20 @@ pub async fn list(db: DatabaseConnection, category_id: i64) -> ApiResult<Vec<Dis
         .collect();
 
     Ok(dishes)
+}
+
+async fn clean_cache(mut redis: ConnectionManager, pattern: &str) -> ApiResult<()> {
+    let mut conn = redis.clone();
+    let mut iter = conn
+        .scan_match(pattern)
+        .await
+        .map_err(|_| ApiError::Internal)?;
+    while let Some(key) = iter.next_item().await {
+        redis
+            .del::<String, ()>(key)
+            .await
+            .map_err(|_| ApiError::Internal)?;
+    }
+
+    Ok(())
 }

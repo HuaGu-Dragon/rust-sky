@@ -3,6 +3,7 @@ use axum::{
     extract::{Path, Query, State},
     routing::{get, put},
 };
+use redis::AsyncTypedCommands;
 use sky_pojo::{
     dto::{
         QueryDelete,
@@ -16,7 +17,7 @@ use sky_pojo::{
 
 use crate::{
     app::AppState,
-    server::{self, ApiReturn, extract::AdminId, response::ApiResponse},
+    server::{self, ApiReturn, error::ApiError, extract::AdminId, response::ApiResponse},
 };
 
 pub fn create_router() -> Router<AppState> {
@@ -29,19 +30,19 @@ pub fn create_router() -> Router<AppState> {
 
 async fn save(
     AdminId(id): AdminId,
-    State(AppState { db, .. }): State<AppState>,
+    State(AppState { db, redis }): State<AppState>,
     Json(category): Json<DishDto>,
 ) -> ApiReturn<()> {
-    server::dish::save(id, db, category).await?;
+    server::dish::save(id, db, redis, category).await?;
     Ok(ApiResponse::success(()))
 }
 
 async fn update(
     AdminId(id): AdminId,
-    State(AppState { db, .. }): State<AppState>,
+    State(AppState { db, redis }): State<AppState>,
     Json(category): Json<DishDto>,
 ) -> ApiReturn<()> {
-    server::dish::update(id, db, category).await?;
+    server::dish::update(id, db, redis, category).await?;
     Ok(ApiResponse::success(()))
 }
 
@@ -56,7 +57,7 @@ async fn get_dish(
 
 async fn delete_dish(
     AdminId(_id): AdminId,
-    State(AppState { db, .. }): State<AppState>,
+    State(AppState { db, redis }): State<AppState>,
     Query(query): Query<QueryDelete>,
 ) -> ApiReturn<()> {
     let ids = query
@@ -64,7 +65,7 @@ async fn delete_dish(
         .split(',')
         .filter_map(|s| s.trim().parse().ok())
         .collect();
-    server::dish::delete(db, ids).await?;
+    server::dish::delete(db, redis, ids).await?;
     Ok(ApiResponse::success(()))
 }
 
@@ -79,9 +80,24 @@ async fn page(
 
 async fn list(
     AdminId(_id): AdminId,
-    State(AppState { db, .. }): State<AppState>,
-    Query(query): Query<DishQueryId>,
+    State(AppState { db, mut redis }): State<AppState>,
+    Query(DishQueryId { category_id }): Query<DishQueryId>,
 ) -> ApiReturn<Vec<DishDetailVO>> {
-    let dishes = server::dish::list(db, query.category_id).await?;
-    Ok(ApiResponse::success(dishes))
+    let key = format!("dish_{category_id}");
+    if let Ok(Some(cached)) = redis.get(&key).await
+        && let Ok(dishes) = serde_json::from_str::<Vec<DishDetailVO>>(&cached)
+    {
+        Ok(ApiResponse::success(dishes))
+    } else {
+        let dishes = server::dish::list(db, category_id).await?;
+        redis
+            .set(
+                key,
+                serde_json::to_string(&dishes).map_err(|_| ApiError::Internal)?,
+            )
+            .await
+            .map_err(|_| ApiError::Internal)?;
+
+        Ok(ApiResponse::success(dishes))
+    }
 }
