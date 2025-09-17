@@ -1,5 +1,6 @@
 use serde::Serialize;
 
+pub mod address;
 pub mod dish;
 pub mod employee;
 pub mod flavor;

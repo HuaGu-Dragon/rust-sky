@@ -2,6 +2,7 @@ use axum::Router;
 
 use crate::app::AppState;
 
+mod address;
 mod category;
 mod dish;
 mod login;
@@ -15,4 +16,5 @@ pub fn create_router() -> Router<AppState> {
         .nest("/dish", dish::create_router())
         .nest("/setmeal", setmeal::create_router())
         .nest("/shoppingCart", shopping_cart::create_router())
+        .nest("/addressBook", address::create_router())
 }

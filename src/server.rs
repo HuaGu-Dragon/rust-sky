@@ -21,6 +21,7 @@ use crate::{
     },
 };
 
+pub mod address;
 pub mod auth;
 pub mod category;
 pub mod dish;

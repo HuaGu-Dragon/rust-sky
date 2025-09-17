@@ -4,6 +4,7 @@ use serde::{
     de::{self, Unexpected},
 };
 
+pub mod address;
 pub mod category;
 pub mod dish;
 pub mod employee;
@@ -20,6 +21,23 @@ pub struct StateQuery {
 #[serde(rename_all = "camelCase")]
 pub struct QueryDelete {
     pub ids: String,
+}
+
+pub fn integer_as_string<'de, D>(deserializer: D) -> Result<String, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    #[derive(Deserialize)]
+    #[serde(untagged)]
+    enum IntOrStr {
+        I(i64),
+        S(String),
+    }
+
+    match IntOrStr::deserialize(deserializer)? {
+        IntOrStr::I(i) => Ok(i.to_string()),
+        IntOrStr::S(s) => Ok(s),
+    }
 }
 
 // uri=/admin/dish/page?page=1&pageSize=10&status=
