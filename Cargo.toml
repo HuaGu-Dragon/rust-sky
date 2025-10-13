@@ -29,6 +29,7 @@ jsonwebtoken = { workspace = true }
 thiserror = { workspace = true }
 uuid = { workspace = true }
 config = { workspace = true }
+chrono = "0.4.42"
 
 [workspace.dependencies]
 mimalloc = { version = "0.1.48", features = ["v3"] }
