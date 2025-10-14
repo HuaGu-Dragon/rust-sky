@@ -2730,6 +2730,7 @@ dependencies = [
  "chrono",
  "config",
  "futures-util",
+ "hex",
  "jsonwebtoken",
  "mimalloc",
  "redis",

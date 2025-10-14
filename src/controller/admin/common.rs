@@ -45,8 +45,11 @@ async fn upload(mut multiple: Multipart) -> ApiReturn<String> {
 
         let mut hasher = Sha1::new();
         hasher.update(file_name);
-        let file_name: [u8; 20] = hasher.finalize().into();
-        let file_name = format!("{}-{:x?}", Utc::now().timestamp(), file_name);
+        let file_name = format!(
+            "{}-{}",
+            Utc::now().timestamp(),
+            hex::encode(hasher.finalize())
+        );
         let file_path = format!("{}{}", dir, file_name);
 
         save_file(field, &file_path).await?;
