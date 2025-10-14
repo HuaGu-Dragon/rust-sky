@@ -2737,6 +2737,7 @@ dependencies = [
  "sea-orm",
  "serde",
  "serde_json",
+ "sha1",
  "sky-pojo",
  "sqlx",
  "thiserror",

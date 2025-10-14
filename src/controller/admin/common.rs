@@ -1,8 +1,9 @@
 use std::path::PathBuf;
 
 use axum::{Router, extract::Multipart, routing::post};
-use chrono::{Datelike, NaiveDateTime};
-use tracing::{error, info};
+use chrono::{Datelike, NaiveDateTime, Utc};
+use sha1::{Digest, Sha1};
+use tracing::error;
 
 use crate::{
     app::AppState,
@@ -21,8 +22,7 @@ pub fn create_router() -> Router<AppState> {
 //TODO: Save file to local or cloud storage and return the file path
 // I don't actually know which way to go, I don't have a oss account, but I can save it to local first
 async fn upload(mut multiple: Multipart) -> ApiReturn<String> {
-    // while let Ok(Some(_field)) = multiple.next_field().await {}
-    // todo!()
+    let mut path = String::from("/");
     while let Some(field) = multiple
         .next_field()
         .await
@@ -38,18 +38,20 @@ async fn upload(mut multiple: Multipart) -> ApiReturn<String> {
             }
         };
 
-        let file_path = format!("{}/{}", dir, file_name);
+        let mut hasher = Sha1::new();
+        hasher.update(file_name);
+        let file_name: [u8; 20] = hasher.finalize().into();
+        let file_name = format!("{}-{:x?}", Utc::now().timestamp(), file_name);
+        let file_path = format!("{}{}", dir, file_name);
 
-        info!("Upload file: {}", file_path);
+        path.push_str(&file_path);
     }
-    Ok(ApiResponse::success(
-        "https://avatars.githubusercontent.com/u/178029962?v=4".to_string(),
-    ))
+    Ok(ApiResponse::success(path))
 }
 
 async fn get_dir(date: NaiveDateTime) -> ApiResult<String> {
     let dir = format!(
-        "/upload/{}/{:02}/{:02}/",
+        "./upload/{}/{:02}/{:02}/",
         date.year(),
         date.month(),
         date.day()
