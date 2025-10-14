@@ -1,8 +1,13 @@
 use std::path::PathBuf;
 
-use axum::{Router, extract::Multipart, routing::post};
+use axum::{
+    Router,
+    extract::{Multipart, multipart::Field},
+    routing::post,
+};
 use chrono::{Datelike, NaiveDateTime, Utc};
 use sha1::{Digest, Sha1};
+use tokio::io::AsyncWriteExt;
 use tracing::error;
 
 use crate::{
@@ -44,6 +49,8 @@ async fn upload(mut multiple: Multipart) -> ApiReturn<String> {
         let file_name = format!("{}-{:x?}", Utc::now().timestamp(), file_name);
         let file_path = format!("{}{}", dir, file_name);
 
+        save_file(field, &file_path).await?;
+
         path.push_str(&file_path);
     }
     Ok(ApiResponse::success(path))
@@ -65,4 +72,22 @@ async fn get_dir(date: NaiveDateTime) -> ApiResult<String> {
     }
 
     Ok(dir)
+}
+
+async fn save_file(mut field: Field<'_>, file_path: &str) -> ApiResult<()> {
+    let mut file = match tokio::fs::File::create(file_path).await {
+        Ok(file) => file,
+        Err(e) => {
+            error!("Create file error: {:?}", e);
+            return Err(ApiError::Internal);
+        }
+    };
+
+    while let Some(chunk) = field.chunk().await.map_err(|_| ApiError::Internal)? {
+        file.write_all(chunk.as_ref())
+            .await
+            .map_err(|_| ApiError::Internal)?;
+    }
+
+    Ok(())
 }
