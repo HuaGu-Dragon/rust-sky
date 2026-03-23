@@ -24,42 +24,40 @@ The project is organized as a Cargo workspace with two main crates:
 | Crate | Purpose | Key Technologies |
 |-------|---------|------------------|
 | `rust-sky` | Core application logic, HTTP server | `axum`, `tokio`, `tower-http` |
-| `sky-pojo` | Data models, DTOs, VOs | `sea-orm`, `serde`, `sqlx` |
+| `sky-pojo` | Data models, DTOs, VOs | `sea-orm`, `serde`, `rust_decimal` |
 
 ### Technology Stack
-- **Web Framework**: `axum` for routing and middleware [1](#0-0) 
-- **Database**: PostgreSQL with `SeaORM` ORM [2](#0-1) 
-- **Caching**: Redis for cache-aside pattern optimization [3](#0-2) 
-- **Async Runtime**: `tokio` for asynchronous execution [4](#0-3) 
-- **Memory Management**: `mimalloc` for improved performance [5](#0-4) 
+- **Web Framework**: `axum` for routing and middleware
+- **Database**: PostgreSQL with `SeaORM` ORM
+- **Caching**: Redis for cache-aside pattern optimization
+- **Async Runtime**: `tokio` for asynchronous execution
+- **Memory Management**: `mimalloc` for improved performance
 
 ## 📁 Project Structure
 
 ```
 rust-sky/
-├── rust-sky/                 # Main application
-│   ├── src/
-│   │   ├── controller/       # HTTP handlers
-│   │   │   ├── admin/       # Admin endpoints
-│   │   │   └── user/        # User endpoints
-│   │   ├── server/          # Business logic layer
-│   │   ├── config/          # Configuration management
-│   │   └── app.rs           # Application state
-│   └── Cargo.toml
+├── src/                     # Main application
+│   ├── controller/          # HTTP handlers
+│   │   ├── admin/           # Admin endpoints
+│   │   └── user/            # User endpoints
+│   ├── server/              # Business logic layer
+│   ├── config/              # Configuration management
+│   └── app.rs               # Application state
 ├── sky-pojo/                # Data models
 │   ├── src/
 │   │   ├── entities/        # SeaORM entities
-│   │   ├── dto/            # Data transfer objects
-│   │   └── vo/             # View objects
+│   │   ├── dto/             # Data transfer objects
+│   │   └── vo/              # View objects
 │   └── Cargo.toml
-├── Cargo.toml              # Workspace configuration
-└── README.md
+├── Cargo.toml               # Workspace configuration
+└── readme.md
 ```
 
 ## 🛠️ Getting Started
 
 ### Prerequisites
-- Rust 1.70+
+- Rust 1.85+
 - PostgreSQL 14+
 - Redis 6+
 
@@ -72,8 +70,8 @@ rust-sky/
    ```
 
 2. **Configure environment**
-   - Copy `application.toml.example` to `application.toml`
-   - Configure database and Redis connections
+   - Create or update an `application.toml` configuration file for the service
+   - Configure database and Redis connection settings in `application.toml`
 
 3. **Run database migrations**
    ```bash
@@ -100,21 +98,21 @@ All admin endpoints are under `/admin` prefix and require JWT authentication:
 - **File Upload**: `/admin/common/upload`
 
 ### Authentication Flow
-The system uses JWT tokens with `AdminId` claims for securing admin endpoints [6](#0-5) .
+The system uses JWT tokens with `AdminId` claims for securing admin endpoints.
 
 ### Example API Usage
-See `test.http` for comprehensive API examples [7](#0-6) .
+See `test.http` for comprehensive API examples.
 
 ## 🔧 Key Features
 
 ### Caching Strategy
-The system implements a cache-aside pattern for dish listings, checking Redis cache before querying PostgreSQL [8](#0-7) .
+The system implements a cache-aside pattern for dish listings, checking Redis cache before querying PostgreSQL.
 
 ### File Upload
-Images are stored in a date-based hierarchy (`./upload/YYYY/MM/DD/`) with SHA-1 hashed filenames to prevent collisions [9](#0-8) .
+Images are stored in a date-based hierarchy (`./upload/YYYY/MM/DD/`) with SHA-1 hashed filenames to prevent collisions.
 
 ### Transaction Management
-Setmeal operations handle complex transactions across multiple tables (setmeal and setmeal_dish association tables) [10](#0-9) .
+Setmeal operations handle complex transactions across multiple tables (setmeal and setmeal_dish association tables).
 
 ## 🤝 Contributing
 
@@ -133,8 +131,8 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 This README is generated based on the current codebase structure and wiki documentation. For the most up-to-date information, please refer to the wiki pages and source code directly.
 
 Wiki pages you might want to explore:
-- [Project Overview (HuaGu-Dragon/rust-sky)](/wiki/HuaGu-Dragon/rust-sky#1)
-- [Admin API (HuaGu-Dragon/rust-sky)](/wiki/HuaGu-Dragon/rust-sky#4.1)
+- [Project Overview (HuaGu-Dragon/rust-sky)](wiki/HuaGu-Dragon/rust-sky#1)
+- [Admin API (HuaGu-Dragon/rust-sky)](wiki/HuaGu-Dragon/rust-sky#4.1)
 
 ### Citations
 
