@@ -133,8 +133,8 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 This README is generated based on the current codebase structure and wiki documentation. For the most up-to-date information, please refer to the wiki pages and source code directly.
 
 Wiki pages you might want to explore:
-- [Project Overview (HuaGu-Dragon/rust-sky)](/wiki/HuaGu-Dragon/rust-sky#1)
-- [Admin API (HuaGu-Dragon/rust-sky)](/wiki/HuaGu-Dragon/rust-sky#4.1)
+- [Project Overview (HuaGu-Dragon/rust-sky)](wiki/Project-Overview)
+- [Admin API (HuaGu-Dragon/rust-sky)](wiki/Admin-API)
 
 ### Citations
 
