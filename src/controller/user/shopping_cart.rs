@@ -15,6 +15,7 @@ pub fn create_router() -> Router<AppState> {
         .route("/add", post(add))
         .route("/list", get(list))
         .route("/clean", delete(clean))
+        .route("/sub", post(sub))
 }
 
 async fn add(
@@ -39,5 +40,14 @@ async fn clean(
     State(AppState { db, .. }): State<AppState>,
 ) -> ApiReturn<()> {
     server::shopping_cart::clean(user_id, db).await?;
+    Ok(ApiResponse::success(()))
+}
+
+async fn sub(
+    UserId(user_id): UserId,
+    State(AppState { db, .. }): State<AppState>,
+    Json(cart): Json<CartDto>,
+) -> ApiReturn<()> {
+    server::shopping_cart::sub(user_id, db, cart).await?;
     Ok(ApiResponse::success(()))
 }

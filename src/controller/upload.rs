@@ -15,6 +15,8 @@ pub fn create_router() -> Router<AppState> {
     Router::new().route("/{*file}", get(server_file))
 }
 
+// TODO: limit the file size
+// TODO: limit the image pixel size (e.g. 200x200)
 pub async fn server_file(Path(file): Path<String>) -> Response<Body> {
     let path = PathBuf::from(format!("./upload/{}", file));
     if !path.exists() || !path.starts_with("./upload") {

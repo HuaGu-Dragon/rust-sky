@@ -82,3 +82,32 @@ pub async fn clean(id: i64, db: DatabaseConnection) -> ApiResult<()> {
 
     Ok(())
 }
+
+pub async fn sub(id: i64, db: DatabaseConnection, cart_update: CartDto) -> ApiResult<()> {
+    let carts = shopping_cart::Entity::find()
+        .filter(shopping_cart::Column::UserId.eq(id))
+        .apply_if(cart_update.dish_id, |query, dish_id| {
+            query.filter(shopping_cart::Column::DishId.eq(dish_id))
+        })
+        .apply_if(cart_update.setmeal_id, |query, meal_id| {
+            query.filter(shopping_cart::Column::SetmealId.eq(meal_id))
+        })
+        .one(&db)
+        .await
+        .map_err(|_| ApiError::Internal)?;
+
+    if let Some(cart) = carts {
+        let number = cart.number - 1;
+        let mut cart = cart.into_active_model();
+        if number == 0 {
+            cart.delete(&db).await.map_err(|_| ApiError::Internal)?;
+        } else {
+            cart.number = ActiveValue::Set(number);
+            cart.update(&db).await.map_err(|_| ApiError::Internal)?;
+        }
+        return Ok(());
+    }
+
+    // NOTE: If no cart is found, do nothing
+    Ok(())
+}
