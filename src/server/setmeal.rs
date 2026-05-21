@@ -23,13 +23,17 @@ pub async fn save(id: i64, db: DatabaseConnection, setmeal: SetmealDto) -> ApiRe
     setmeal.create_user = sea_orm::ActiveValue::Set(Some(id));
     setmeal.update_user = sea_orm::ActiveValue::Set(Some(id));
 
-    let saved = setmeal.insert(&db).await.map_err(|_| ApiError::Internal)?;
+    let txn = db.begin().await.map_err(|_| ApiError::Internal)?;
+    let saved = setmeal.insert(&txn).await.map_err(|_| ApiError::Internal)?;
 
     let tasks = setmeal_dishes.into_iter().map(|mut sd| {
         sd.setmeal_id = sea_orm::ActiveValue::Set(Some(saved.id));
-        sd.insert(&db)
+        sd.insert(&txn)
     });
+
     try_join_all(tasks).await.map_err(|_| ApiError::Internal)?;
+
+    txn.commit().await.map_err(|_| ApiError::Internal)?;
 
     Ok(())
 }

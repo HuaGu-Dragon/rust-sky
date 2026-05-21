@@ -14,6 +14,7 @@ use crate::{
     update_params,
 };
 
+// TODO: not use plaintext
 const DEFAULT_PASSWORD: &str = "123456";
 
 pub async fn save(id: i64, db: DatabaseConnection, employee: EmployeeDto) -> ApiResult<()> {
@@ -104,8 +105,14 @@ pub async fn page_query(
         })
         .paginate(&db, page_size as u64);
 
-    let num_pages = paginator.num_pages().await.unwrap();
-    let employees = paginator.fetch_page(page as u64 - 1).await.unwrap();
+    let num_pages = paginator
+        .num_pages()
+        .await
+        .map_err(|_| ApiError::Internal)?;
+    let employees = paginator
+        .fetch_page(page.saturating_sub(1) as u64)
+        .await
+        .map_err(|_| ApiError::Internal)?;
 
     Ok(Page::new(num_pages as i64, employees))
 }

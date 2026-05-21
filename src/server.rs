@@ -111,7 +111,7 @@ impl Server {
                     .on_response(LatencyLayer),
             )
             .layer(AsyncRequireAuthorizationLayer::new(AuthLayer))
-            .layer(CorsLayer::permissive())
+            .layer(CorsLayer::permissive()) // TODO: change to allow only trusted origins
             .layer(TimeoutLayer::new(Duration::from_secs(30))) // TODO: make configurable
             .with_state(state)
     }

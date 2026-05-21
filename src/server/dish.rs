@@ -231,6 +231,7 @@ pub async fn list(db: DatabaseConnection, category_id: i64) -> ApiResult<Vec<Dis
     Ok(dishes)
 }
 
+// TODO: Performant cache cleaning, like pipeline
 async fn clean_cache(mut redis: ConnectionManager, pattern: &str) -> ApiResult<()> {
     let mut conn = redis.clone();
     let mut iter = conn

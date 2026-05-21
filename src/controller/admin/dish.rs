@@ -90,6 +90,7 @@ async fn list(
         Ok(ApiResponse::success(dishes))
     } else {
         let dishes = server::dish::list(db, category_id).await?;
+        // TODO: TTL
         redis
             .set(
                 key,

@@ -56,7 +56,11 @@ impl JwtService {
             iat: now,
         };
 
-        Ok(jsonwebtoken::encode(&self.header, &claims, &self.encode_key).unwrap())
+        Ok(jsonwebtoken::encode(
+            &self.header,
+            &claims,
+            &self.encode_key,
+        )?)
     }
 
     //TODO: Handle errors properly
